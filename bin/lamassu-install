@@ -117,8 +117,7 @@ fi
 # for `local` connection is `peer`, which checks username of the user running
 # `psql` command.
 echo "Bootstrapping PostgreSQL..."
-npm explore -g lamassu-admin 'cat database/lamassu.sql' |
-  PGPASSWORD="$password" psql -h 127.0.0.1 lamassu lamassu >> $debug 2>&1
+PGPASSWORD="$password" psql -h 127.0.0.1 lamassu lamassu >> $debug 2>&1 < database/lamassu.sql
 
 [ $? -ne 0 ] && fail "Bootstrapping PostgreSQL failed"
 

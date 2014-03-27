@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
-    "lamassu-install": "./bin/lamassu-install"
+    "lamassu-install": "./bin/lamassu-install",
+    "lamassu-passwd": "./bin/lamassu-passwd",
+    "lamassu-useradd": "./bin/lamassu-useradd"
   },
   "dependencies": {
     "read": "^1.0.5"

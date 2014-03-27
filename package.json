@@ -4,5 +4,8 @@
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
     "lamassu-install": "./bin/lamassu-install"
+  },
+  "dependencies": {
+    "read": "^1.0.5"
   }
 }

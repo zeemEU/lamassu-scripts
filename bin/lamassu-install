@@ -52,7 +52,7 @@ rm -f lamassu-debug.log
 if exists apt-get; then
   update="apt-get update -y"
   upgrade="apt-get upgrade -y"
-  install="apt-get install -y postgresql-9.1 libpq-dev git build-essential"
+  install="apt-get install -y postgresql libpq-dev git build-essential"
 fi
 
 if [ -z "$install" ]; then

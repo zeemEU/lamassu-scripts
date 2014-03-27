@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "read": "^1.0.5",
-    "lamassu-config": "git+https://github.com/lamassu/lamassu-config.git#master"
+    "lamassu-config": "git+https://github.com/lamassu/lamassu-config.git#users"
   }
 }

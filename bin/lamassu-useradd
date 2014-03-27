@@ -1,0 +1,55 @@
+#!/usr/bin/env node
+var LamassuConfig = require('lamassu-config');
+var read = require('read');
+
+var psqlUrl = process.env.DATABASE_URL || 'psql://lamassu:lamassu@localhost/lamassu';
+var config = new LamassuConfig(psqlUrl);
+
+function onError(err) {
+  config.end();
+  console.error('Error: ' + err.message);
+  process.exit(1);
+}
+
+function create(user, password) {
+  config.addUser(user, password, function (err) {
+    if (err) {
+      return onError(err);
+    }
+
+    console.log('User ' + user + ' created.');
+    config.end();
+  });
+}
+
+function onUser(user) {
+  // Only allow inputting password from the prompt for now.
+  read({
+    silent: true,
+    prompt: 'Password: '
+  }, function (err, password) {
+    if (err) {
+      return onError(err);
+    }
+
+    create(user, password);
+  });
+}
+
+
+var username = process.argv[2];
+if (username) {
+  onUser(username);
+}
+else {
+  read({
+    prompt: 'Username: ',
+    default: 'admin'
+  }, function (err, user) {
+    if (err) {
+      return onError(err);
+    }
+
+    onUser(user);
+  });
+}

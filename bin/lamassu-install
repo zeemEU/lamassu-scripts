@@ -27,11 +27,17 @@ EOF
 echo "Hello! This script will install Lamassu stack, including "
 echo "PostgreSQL on this machine."
 echo
+echo "We'll ask you a couple of questions during the course of "
+echo "this installation, so please stand by."
+echo
 
 if [ "$(whoami)" != "root" ]; then
   echo "This script has to be run as \`root\`"
   exit 3
 fi
+
+# Find `lamassu-scripts` root.
+dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 
 debug="lamassu-debug.log"
 prefix="/usr/local"
@@ -99,6 +105,10 @@ curl "$node" | tar -C"$prefix" --strip-components=1 -zxf-
 
 [ $? -ne 0 ] && fail "Node.js installation failed"
 
+echo "Installing Lamassu scripts... (this might take a while)..."
+$(cd "$dir" && npm install >> $debug 2>&1)
+[ $? -ne 0 ] && fail "Lamassu scripts installation failed"
+
 echo "Installing Lamassu stack (this might take a while)..."
 # Install Lamassu stack
 npm -g install lamassu-server lamassu-admin >> $debug 2>&1
@@ -117,9 +127,13 @@ fi
 # for `local` connection is `peer`, which checks username of the user running
 # `psql` command.
 echo "Bootstrapping PostgreSQL..."
-PGPASSWORD="$password" psql -h 127.0.0.1 lamassu lamassu >> $debug 2>&1 < database/lamassu.sql
+PGPASSWORD="$password" psql -h 127.0.0.1 lamassu lamassu >> $debug 2>&1 < "$dir/database/lamassu.sql"
 
 [ $? -ne 0 ] && fail "Bootstrapping PostgreSQL failed"
+
+echo "Creating a Lamassu user account"
+DATABASE_URL="postgres://lamassu:$password@localhost/lamassu" $dir/bin/lamassu-useradd
+[ $? -ne 0 ] && fail "Adding a user failed"
 
 ip=$(ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
 

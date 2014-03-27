@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+var read = require('read');
+var LamassuConfig = require('lamassu-config');
+
+var psqlUrl = process.env.DATABASE_URL || 'psql://lamassu:lamassu@localhost/lamassu';
+var config = new LamassuConfig(psqlUrl);
+
+var user = process.argv[2];
+
+function onError(err) {
+  config.end();
+  console.error('Error: ' + err.message);
+  process.exit(1);
+}
+
+read({
+  silent: true,
+  prompt: 'Password: '
+}, function (err, password) {
+  if (err) {
+    return onError(err);
+  }
+
+  config.updatePassword(user, password, function (err) {
+    if (err) {
+      return onError(err);
+    }
+
+    console.log('Password for user ' + user + ' was updated.');
+    config.end();
+  });
+});

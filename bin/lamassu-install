@@ -120,9 +120,6 @@ if [ "$service" == "upstart" ]; then
 fi
 
 # Bootstrap lamassu database
-# XXX: this is a bit of a hack since it relies on `database/lamassu.sql` being
-# in `lamassu-admin` package. We should find a better way (for example running
-# `lamassu-admin bootstrap`).
 # We also have to use `-h 127.0.0.1` because the default type of authentication
 # for `local` connection is `peer`, which checks username of the user running
 # `psql` command.

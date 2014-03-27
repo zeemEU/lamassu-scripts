@@ -8,6 +8,7 @@
     "lamassu-useradd": "./bin/lamassu-useradd"
   },
   "dependencies": {
-    "read": "^1.0.5"
+    "read": "^1.0.5",
+    "lamassu-config": "git+https://github.com/lamassu/lamassu-config.git#master"
   }
 }

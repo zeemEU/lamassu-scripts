@@ -24,15 +24,21 @@ function create(user, password) {
 
 function onUser(user) {
   // Only allow inputting password from the prompt for now.
+  var password = process.argv[3];
+
+  if (password) {
+    return create(user, password);
+  }
+
   read({
     silent: true,
     prompt: 'Password: '
-  }, function (err, password) {
+  }, function (err, password_) {
     if (err) {
       return onError(err);
     }
 
-    create(user, password);
+    create(user, password_);
   });
 }
 

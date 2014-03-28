@@ -121,7 +121,7 @@ CREATE TABLE devices (
 CREATE TABLE pairing_tokens (
   id serial PRIMARY KEY,
   token text,
-  created timestamp
+  created timestamp NOT NULL DEFAULT now()
 );
 
 CREATE TABLE transactions (

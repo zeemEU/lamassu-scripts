@@ -24,11 +24,32 @@ chdir $(npm -g explore $package pwd)
 EOF
 }
 
+function prompt() {
+  question="$1"
+  default="$2"
+  silent="$3"
+  var="$4"
+
+  echo -n "$question: "
+  if [ ! -z "$default" ]; then
+    echo -n "($default) "
+  fi
+
+  if [ "$silent" = true ]; then
+    read -s result
+  else
+    read result
+  fi
+
+  if [ -z "$result" ]; then
+    export "$var=$default"
+  else
+    export "$var=$result"
+  fi
+}
+
 echo "Hello! This script will install Lamassu stack, including "
 echo "PostgreSQL on this machine."
-echo
-echo "We'll ask you a couple of questions during the course of "
-echo "this installation, so please stand by."
 echo
 
 if [ "$(whoami)" != "root" ]; then
@@ -81,7 +102,17 @@ if [ -z "$service" ]; then
   exit 2
 fi
 
+echo "We'll now ask you a couple of questions in order to configure "
+echo "this installation."
+echo
+
+echo "Pick your admin panel credentials:"
+prompt "Username" "admin" false admin_username
+prompt "Password" "" true admin_password
+
+
 echo "Updating your system (this might take a while)..."
+
 eval $update >> $debug 2>&1
 eval $upgrade >> $debug 2>&1
 
@@ -134,7 +165,7 @@ PGPASSWORD="$password" psql -h 127.0.0.1 lamassu lamassu >> $debug 2>&1 < "$dir/
 [ $? -ne 0 ] && fail "Bootstrapping PostgreSQL failed"
 
 echo "Creating a Lamassu user account"
-DATABASE_URL="postgres://lamassu:$password@localhost/lamassu" $dir/bin/lamassu-useradd
+DATABASE_URL="postgres://lamassu:$password@localhost/lamassu" $dir/bin/lamassu-useradd "$admin_username" "$admin_password"
 [ $? -ne 0 ] && fail "Adding a user failed"
 
 ip=$(ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')

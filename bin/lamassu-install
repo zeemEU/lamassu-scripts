@@ -141,7 +141,7 @@ curl "$node" | tar -C"$prefix" --strip-components=1 -zxf-
 
 [ $? -ne 0 ] && fail "Node.js installation failed"
 
-echo "Installing Lamassu scripts... (this might take a while)..."
+echo "Installing Lamassu scripts (this might take a while)..."
 $(cd "$dir" && npm install >> $debug 2>&1)
 [ $? -ne 0 ] && fail "Lamassu scripts installation failed"
 

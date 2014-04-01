@@ -186,7 +186,7 @@ start lamassu-admin >> $debug 2>&1
 
 echo
 echo "Done! Now it's time to configure Lamassu stack."
-echo "Open http://$ip:8080 in your browser to access "
+echo "Open https://$ip:8081 in your browser to access "
 echo "your admin panel."
 echo "When you're done there, run 'start lamassu-server' "
 echo "and follow instructions about configuring your ATM."

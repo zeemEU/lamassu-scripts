@@ -128,12 +128,11 @@ CREATE TABLE transactions (
   id uuid PRIMARY KEY,
   status text NOT NULL,
   txHash text,
-  deviceId integer REFERENCES devices ON DELETE RESTRICT,
+  deviceFingerprint text,
   toAddress text NOT NULL,
   satoshis integer,
   currencyCode text,
   fiat decimal,
-  rate decimal,
   error text,
   created timestamp NOT NULL DEFAULT now(),
   completed timestamp

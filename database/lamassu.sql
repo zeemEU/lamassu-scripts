@@ -80,7 +80,12 @@ COPY user_config (id, type, data) FROM stdin;
       "lowBalanceMargin": 1.05,\
       "transactionFee": 10000,\
       "tickerDelta": 0,\
-      "minimumTradeFiat": 0\
+      "minimumTradeFiat": 0,\
+      "compliance": {\
+        "maximum": {\
+          "limit": null\
+        }\
+      }\
     },\
     "plugins": {\
       "settings": {\

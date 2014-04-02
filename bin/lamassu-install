@@ -172,7 +172,7 @@ ip=$(ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
 
 # Generate SSL certificates for lamassu-server and lamassu-admin.
 echo "Generating SSL certificates..."
-openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:8080" -keyout /root/lamassu-admin.key  -out /root/lamassu-admin.crt >> $debug 2>&1
+openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:8081" -keyout /root/lamassu-admin.key  -out /root/lamassu-admin.crt >> $debug 2>&1
 [ $? -ne 0 ] && fail "Generating a certificate for lamassu-admin failed"
 
 openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:3000" -keyout /root/lamassu-server.key -out /root/lamassu-server.crt >> $debug 2>&1

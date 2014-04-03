@@ -21,7 +21,12 @@ CREATE TABLE user_config (
 COPY user_config (id, type, data) FROM stdin;
 1	exchanges	{"exchanges" : {\
     "settings": {\
-      "commission": 1.0\
+      "commission": 1.0,\
+      "compliance": {\
+        "maximum": {\
+          "limit": null\
+        }\
+      }\
     },\
     "plugins" : {\
       "current": {\
@@ -78,12 +83,7 @@ COPY user_config (id, type, data) FROM stdin;
       "lowBalanceMargin": 1.05,\
       "transactionFee": 10000,\
       "tickerDelta": 0,\
-      "minimumTradeFiat": 0,\
-      "compliance": {\
-        "maximum": {\
-          "limit": null\
-        }\
-      }\
+      "minimumTradeFiat": 0\
     },\
     "plugins": {\
       "settings": {\

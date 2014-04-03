@@ -26,12 +26,10 @@ COPY user_config (id, type, data) FROM stdin;
     "plugins" : {\
       "current": {\
         "ticker": "bitpay",\
-        "trade": "bitstamp",\
         "transfer": "blockchain"\
       },\
       "settings": {\
         "bitpay": {},\
-        "bitstamp": {"currency": "USD", "key": "test", "secret": "test", "clientId": "test" },\
         "blockchain" : {}\
       }\
     }\

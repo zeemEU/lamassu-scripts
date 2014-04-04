@@ -181,13 +181,14 @@ openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=
 
 chmod 600 /root/{*.key,*.crt}
 
-echo "Starting lamassu-admin..."
+echo "Starting Lamassu services..."
 start lamassu-admin >> $debug 2>&1
 [ $? -ne 0 ] && fail "Starting lamassu-admin failed"
+
+start lamassu-server >> $debug 2>&1
+[ $? -ne 0 ] && fail "Starting lamassu-server failed"
 
 echo
 echo "Done! Now it's time to configure Lamassu stack."
 echo "Open https://$ip:8081 in your browser to access "
 echo "your admin panel."
-echo "When you're done there, run 'start lamassu-server' "
-echo "and follow instructions about configuring your ATM."

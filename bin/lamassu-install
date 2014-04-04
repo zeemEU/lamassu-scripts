@@ -148,6 +148,7 @@ $(cd "$dir" && npm install >> $debug 2>&1)
 echo "Installing Lamassu stack (this might take a while)..."
 # Install Lamassu stack
 npm -g install lamassu-server lamassu-admin >> $debug 2>&1
+[ $? -ne 0 ] && fail "Lamassu stack installation failed"
 
 echo "Installing Lamassu services..."
 if [ "$service" == "upstart" ]; then

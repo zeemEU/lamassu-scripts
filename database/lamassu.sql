@@ -118,7 +118,8 @@ CREATE TABLE devices (
   id serial PRIMARY KEY,
   fingerprint text NOT NULL UNIQUE,
   name text,
-  authorized boolean
+  authorized boolean,
+  unpair boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE pairing_tokens (

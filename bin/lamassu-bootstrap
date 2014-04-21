@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+rm -rf lamassu-scripts
 mkdir lamassu-scripts
 # `-C` and `--strip-components=1` make sure that our scripts end up in
 # `lamassu-scripts`, no matter what the root directory of the tarball is.

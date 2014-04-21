@@ -121,18 +121,18 @@ eval $upgrade >> $debug 2>&1
 
 echo "Creating user accounts (lamassu, operator)..."
 
-useradd -m operator >> $debug 2>&1
+useradd -m op >> $debug 2>&1
 [ $? -ne 0 ] && fail "Creating \`operator\` user account failed"
-echo 'operator ALL=(ALL) NOPASSWD' >> /etc/sudoers
+echo 'op ALL=(ALL) NOPASSWD' >> /etc/sudoers
 [ $? -ne 0 ] && fail "Adding \`operator\` as a sudoer failed"
 
 useradd -s /bin/nologin lamassu >> $debug 2>&1
 [ $? -ne 0 ] && fail "Creating \`lamassu\` user account failed"
 
 echo "Setting up and securing SSH..."
-mkdir /home/operator/.ssh >> $debug 2>&1
-cp /root/.ssh/authorized_keys /home/operator/.ssh >> $debug 2>&1
-chown -R operator:operator /home/operator/.ssh >> $debug 2>&1
+mkdir /home/op/.ssh >> $debug 2>&1
+cp /root/.ssh/authorized_keys /home/op/.ssh >> $debug 2>&1
+chown -R op:op /home/op/.ssh >> $debug 2>&1
 
 echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
 [ $? -ne 0 ] && fail "Disallowing \`root\` SSH logins failed"

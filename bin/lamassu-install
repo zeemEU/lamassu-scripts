@@ -20,6 +20,8 @@ respawn
 start on startup
 env DATABASE_URL=postgres://lamassu:$password@localhost/lamassu
 env NODE_ENV=production
+setuid lamassu
+setgid lamassu
 chdir $(npm -g explore $package pwd)
 EOF
 }

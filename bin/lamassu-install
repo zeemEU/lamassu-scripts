@@ -124,7 +124,7 @@ echo "Creating user accounts (lamassu, operator)..."
 useradd -m operator
 [ $? -ne 0 ] && fail "Creating an operator user account failed"
 
-useradd lamassu
+useradd -s /bin/nologin lamassu
 [ $? -ne 0 ] && fail "Creating an lamassu user account failed"
 
 # Install PostgreSQL with the package manager we found.

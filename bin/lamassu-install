@@ -123,12 +123,12 @@ eval $upgrade >> $debug 2>&1
 
 echo "Creating user accounts (lamassu, operator)..."
 
-useradd -g yes -m sysadmin >> $debug 2>&1
+useradd -U -m sysadmin >> $debug 2>&1
 [ $? -ne 0 ] && fail "Creating \`sysadmin\` user account failed"
 echo 'sysadmin ALL=(ALL) NOPASSWD' >> /etc/sudoers
 [ $? -ne 0 ] && fail "Adding \`sysadmin\` as a sudoer failed"
 
-useradd -g yes -s /bin/nologin lamassu >> $debug 2>&1
+useradd -U -s /bin/nologin lamassu >> $debug 2>&1
 [ $? -ne 0 ] && fail "Creating \`lamassu\` user account failed"
 
 echo "Setting up and securing SSH..."

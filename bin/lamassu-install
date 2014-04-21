@@ -119,6 +119,14 @@ eval $upgrade >> $debug 2>&1
 
 [ $? -ne 0 ] && fail "Updating your system failed"
 
+echo "Creating user accounts (lamassu, operator)..."
+
+useradd -m operator
+[ $? -ne 0 ] && fail "Creating an operator user account failed"
+
+useradd lamassu
+[ $? -ne 0 ] && fail "Creating an lamassu user account failed"
+
 # Install PostgreSQL with the package manager we found.
 echo "Installing PostgreSQL (this might take a while)..."
 eval $install >> $debug 2>&1

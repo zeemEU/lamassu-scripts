@@ -131,11 +131,11 @@ CREATE TABLE pairing_tokens (
 CREATE TABLE transactions (
   id uuid PRIMARY KEY,
   status text NOT NULL,
-  "txHash" text,
-  "deviceFingerprint" text,
-  "toAddress" text NOT NULL,
+  txHash text,
+  deviceFingerprint text,
+  toAddress text NOT NULL,
   satoshis integer,
-  "currencyCode" text,
+  currencyCode text,
   fiat decimal,
   error text,
   created timestamp NOT NULL DEFAULT now(),
@@ -145,7 +145,7 @@ CREATE TABLE transactions (
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 CREATE TABLE users (
   id serial PRIMARY KEY,
-  "userName" text NOT NULL UNIQUE,
+  userName text NOT NULL UNIQUE,
   salt text NOT NULL,
-  "pwdHash" text NOT NULL
+  pwdHash text NOT NULL
 );

@@ -13,9 +13,9 @@ SET default_with_oids = false;
 
 -- Name: user_config; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 CREATE TABLE user_config (
-  "id" serial PRIMARY KEY,
-  "type" text NOT NULL,
-  "data" json NOT NULL
+  id serial PRIMARY KEY,
+  type text NOT NULL,
+  data json NOT NULL
 );
 
 COPY user_config (id, type, data) FROM stdin;
@@ -115,37 +115,37 @@ COPY user_config (id, type, data) FROM stdin;
 \.
 
 CREATE TABLE devices (
-  "id" serial PRIMARY KEY,
-  "fingerprint" text NOT NULL UNIQUE,
-  "name" text,
-  "authorized" boolean,
-  "unpair" boolean NOT NULL DEFAULT false
+  id serial PRIMARY KEY,
+  fingerprint text NOT NULL UNIQUE,
+  name text,
+  authorized boolean,
+  unpair boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE pairing_tokens (
-  "id" serial PRIMARY KEY,
-  "token" text,
-  "created" timestamp NOT NULL DEFAULT now()
+  id serial PRIMARY KEY,
+  token text,
+  created timestamp NOT NULL DEFAULT now()
 );
 
 CREATE TABLE transactions (
-  "id" uuid PRIMARY KEY,
-  "status" text NOT NULL,
+  id uuid PRIMARY KEY,
+  status text NOT NULL,
   "txHash" text,
   "deviceFingerprint" text,
   "toAddress" text NOT NULL,
-  "satoshis" integer,
+  satoshis integer,
   "currencyCode" text,
-  "fiat" decimal,
-  "error" text,
-  "created" timestamp NOT NULL DEFAULT now(),
-  "completed" timestamp
+  fiat decimal,
+  error text,
+  created timestamp NOT NULL DEFAULT now(),
+  completed timestamp
 );
 
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 CREATE TABLE users (
-  "id" serial PRIMARY KEY,
+  id serial PRIMARY KEY,
   "userName" text NOT NULL UNIQUE,
-  "salt" text NOT NULL,
+  salt text NOT NULL,
   "pwdHash" text NOT NULL
 );

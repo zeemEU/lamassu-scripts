@@ -65,6 +65,7 @@ dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 
 debug="lamassu-debug.log"
 prefix="/usr/local"
+ssl_prefix="/etc/lamassu/ssl"
 node="http://nodejs.org/dist/v0.10.26/node-v0.10.26-linux-x64.tar.gz"
 
 # First detect our package manager. Fail early if we don't support it.
@@ -196,13 +197,21 @@ ip=$(ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
 
 # Generate SSL certificates for lamassu-server and lamassu-admin.
 echo "Generating SSL certificates..."
-openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:8081" -keyout /root/lamassu-admin.key  -out /root/lamassu-admin.crt >> $debug 2>&1
+mkdir -p "$ssl_prefix" >> $debug 2>&1
+[ $? -ne 0 ] && fail "Creating a directory for certificates failed"
+
+openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:8081" -keyout "$ssl_prefix/lamassu-admin.key" -out "$ssl_prefix/lamassu-admin.crt" >> $debug 2>&1
 [ $? -ne 0 ] && fail "Generating a certificate for lamassu-admin failed"
 
-openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:3000" -keyout /root/lamassu-server.key -out /root/lamassu-server.crt >> $debug 2>&1
+openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:3000" -keyout "$ssl_prefix/lamassu-server.key" -out "$ssl_prefix/lamassu-server.crt" >> $debug 2>&1
 [ $? -ne 0 ] && fail "Generating a certificate for lamassu-server failed"
 
-chmod 600 /root/{*.key,*.crt}
+chown lamassu:lamassu "$ssl_prefix/*"
+chmod 600 "$ssl_prefix/*"
+
+# Certificates being owned by `lamassu:lamassu` *and* under `/etc/` is
+# problematic, since everything else there is owned by root. However, there
+# doesn't seem to be a better place to store them in UNIX file system layout.
 
 echo "Installing lamassu-scripts globally"
 $(cd "$dir" && npm install -g >> $debug 2>&1)

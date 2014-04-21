@@ -206,8 +206,8 @@ openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=
 openssl req -new -newkey rsa:8092 -days 9999 -nodes -x509 -subj "/C=US/ST=/L=/O=/CN=$ip:3000" -keyout "$ssl_prefix/lamassu-server.key" -out "$ssl_prefix/lamassu-server.crt" >> $debug 2>&1
 [ $? -ne 0 ] && fail "Generating a certificate for lamassu-server failed"
 
-chown lamassu:lamassu "$ssl_prefix/*"
-chmod 600 "$ssl_prefix/*"
+chown -R lamassu:lamassu "$ssl_prefix"
+chmod -R 600 "$ssl_prefix"
 
 # Certificates being owned by `lamassu:lamassu` *and* under `/etc/` is
 # problematic, since everything else there is owned by root. However, there

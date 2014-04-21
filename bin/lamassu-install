@@ -121,10 +121,10 @@ eval $upgrade >> $debug 2>&1
 
 echo "Creating user accounts (lamassu, operator)..."
 
-useradd -m operator
+useradd -m operator >> $debug 2>&1
 [ $? -ne 0 ] && fail "Creating \`operator\` user account failed"
 
-useradd -s /bin/nologin lamassu
+useradd -s /bin/nologin lamassu >> $debug 2>&1
 [ $? -ne 0 ] && fail "Creating \`lamassu\` user account failed"
 
 # Install PostgreSQL with the package manager we found.

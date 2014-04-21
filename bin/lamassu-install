@@ -121,7 +121,7 @@ eval $upgrade >> $debug 2>&1
 
 echo "Creating user accounts (lamassu, operator)..."
 
-useradd -m op >> $debug 2>&1
+useradd -g yes -m op >> $debug 2>&1
 [ $? -ne 0 ] && fail "Creating \`operator\` user account failed"
 echo 'op ALL=(ALL) NOPASSWD' >> /etc/sudoers
 [ $? -ne 0 ] && fail "Adding \`operator\` as a sudoer failed"

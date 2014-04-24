@@ -1,8 +1,18 @@
 #!/usr/bin/env node
+var fs = require('fs');
 var read = require('read');
 var LamassuConfig = require('lamassu-config');
 
-var psqlUrl = process.env.DATABASE_URL || 'psql://lamassu:lamassu@localhost/lamassu';
+var psqlUrl;
+
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
 var config = new LamassuConfig(psqlUrl);
 
 var user = process.argv[2];

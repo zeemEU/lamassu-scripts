@@ -37,6 +37,7 @@ function prompt() {
 
   if [ "$silent" = true ]; then
     read -s result
+    echo
   else
     read result
   fi
@@ -133,6 +134,8 @@ su - postgres >> $debug 2>&1 <<EOF
   psql -c "CREATE ROLE lamassu WITH LOGIN SUPERUSER PASSWORD '$password';"
   createdb -O lamassu lamassu
 EOF
+
+echo "{\"postgresql\":\"postgres://lamassu:$password@localhost/lamassu\"}" > /etc/lamassu.json
 
 echo "Fetching and installing node.js..."
 

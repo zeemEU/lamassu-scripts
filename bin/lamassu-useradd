@@ -6,10 +6,11 @@ var read = require('read');
 var psqlUrl;
 
 try {
-  psqlUrl = JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
 }
 catch (ex) {
-  psqlUrl = process.env.DATABASE_URL || 'psql://lamassu:lamassu@localhost/lamassu';
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
 }
 
 var config = new LamassuConfig(psqlUrl);

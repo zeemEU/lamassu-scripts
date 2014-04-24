@@ -37,6 +37,7 @@ function prompt() {
 
   if [ "$silent" = true ]; then
     read -s result
+    echo
   else
     read result
   fi

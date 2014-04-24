@@ -135,7 +135,7 @@ su - postgres >> $debug 2>&1 <<EOF
   createdb -O lamassu lamassu
 EOF
 
-echo "{\"postgresql\":\"$password\"}" > /etc/lamassu.json
+echo "{\"postgresql\":\"postgres://lamassu:$password@localhost/lamassu\"}" > /etc/lamassu.json
 
 echo "Fetching and installing node.js..."
 

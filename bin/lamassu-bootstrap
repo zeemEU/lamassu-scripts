@@ -6,4 +6,4 @@ mkdir lamassu-scripts
 curl -L https://github.com/lamassu/lamassu-scripts/archive/master.tar.gz | \
   tar -zxf- -C lamassu-scripts --strip-components=1
 cd lamassu-scripts
-./bin/lamassu-install
+source ./bin/lamassu-install

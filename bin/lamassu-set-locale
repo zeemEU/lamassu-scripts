@@ -1,0 +1,105 @@
+#!/usr/bin/env node
+'use strict';
+var fs = require('fs');
+var LamassuConfig = require('lamassu-config');
+var psqlUrl;
+
+var _currentConfig = null;
+var _currencyWasSet = false;
+var _primaryWasSet = false;
+var _locale = null;
+
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var config = new LamassuConfig(psqlUrl);
+
+function usage() {
+  console.log();
+  console.log('lamassu-set-locale [<currency>] [<locale>] [<locale>]');
+  console.log();
+  console.log('Examples');
+  console.log('--------');
+  console.log();
+  console.log('Updates currency to Swiss Francs:');
+  console.log('lamassu-set-locale CHF');
+  console.log();
+  console.log('Makes Portuguese the sole language:');
+  console.log('lamassu-set-locale pt-PT');
+  console.log();
+  console.log('Sets currency to Israeli Shekels, ');
+  console.log('primary language to Hebrew, secondary language to English:');
+  console.log('lamassu-set-locale ILS he-IL en-US');
+  console.log();
+}
+
+function onError(err) {
+  config.end();
+  console.log();
+  console.error('Error: ' + err.message);
+  usage();
+  process.exit(1);
+}
+
+function loadConfig(cb) {
+  config._readConfig('unit', function(err, res) {
+    if (err) return cb(err);
+    cb(null, res);
+  });
+}
+
+function saveConfig(cb) {
+  _currentConfig.brain.locale = _locale;
+  config._updateConfig('unit', _currentConfig, function (err) {
+    cb(err);
+  });
+}
+
+function process_arg(arg) {
+  if (/^[A-Z][A-Z][A-Z]$/.test(arg)) {
+    if (_currencyWasSet) return onError(new Error('More than one currency specified'));
+    _locale.currency = arg;
+    _currencyWasSet = true;
+    return;
+  }
+
+  if (/^[A-Za-z0-9\-]+/.test(arg)) {
+    if (!_primaryWasSet) {
+      _locale.localeInfo.primaryLocale = arg;
+      _locale.localeInfo.primaryLocales = [];
+      _primaryWasSet = true;
+    }
+    _locale.localeInfo.primaryLocales.push(arg);
+    return;
+  }
+
+  onError(new Error('Invalid argument: ' + arg));
+}
+
+var args = process.argv;
+if (args.length == 2) {
+  usage();
+  process.exit(1);
+}
+
+loadConfig(function(err, configObj) {
+  if (err) return onError(err);
+  _currentConfig = configObj;
+  _locale = _currentConfig.brain.locale;
+
+  for (var i = 2; i < args.length; i++) {
+    var arg = args[i];
+    process_arg(arg);
+  }
+
+  saveConfig(function (err) {
+    if (err) return onError(err);
+    config.end();
+    console.log('Update successful');
+  });
+});

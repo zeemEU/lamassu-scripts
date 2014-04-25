@@ -1,6 +1,6 @@
 {
   "name": "lamassu-scripts",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
     "lamassu-install": "./bin/lamassu-install",
@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "read": "^1.0.5",
-    "lamassu-config": "0.3.3"
+    "lamassu-config": "0.3.4"
   }
 }

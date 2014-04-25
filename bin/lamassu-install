@@ -191,6 +191,8 @@ start lamassu-admin >> $debug 2>&1
 start lamassu-server >> $debug 2>&1
 [ $? -ne 0 ] && fail "Starting lamassu-server failed"
 
+echo 'export PATH=$PATH:$HOME/lamassu-scripts/bin' >> $HOME/.bashrc
+
 echo
 echo "Done! Now it's time to configure Lamassu stack."
 echo "Open https://$ip:8081 in your browser to access "

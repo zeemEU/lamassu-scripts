@@ -196,7 +196,6 @@ start lamassu-server >> $debug 2>&1
 [ $? -ne 0 ] && fail "Starting lamassu-server failed"
 
 echo 'export PATH=$PATH:$HOME/lamassu-scripts/bin' >> $HOME/.bashrc
-export PATH=$PATH:$HOME/lamassu-scripts/bin
 
 echo
 echo "Done! Now it's time to configure Lamassu stack."

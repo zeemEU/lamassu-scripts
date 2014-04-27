@@ -1,0 +1,60 @@
+{
+  "name": "lamassu-scripts",
+  "version": "0.1.1",
+  "dependencies": {
+    "read": {
+      "version": "1.0.5",
+      "from": "read@^1.0.5",
+      "dependencies": {
+        "mute-stream": {
+          "version": "0.0.4",
+          "from": "mute-stream@~0.0.4"
+        }
+      }
+    },
+    "lamassu-config": {
+      "version": "0.4.0",
+      "from": "lamassu-config@~0.4.0",
+      "dependencies": {
+        "deepmerge": {
+          "version": "0.2.7",
+          "from": "deepmerge@~0.2.7"
+        },
+        "pg": {
+          "version": "2.11.1",
+          "from": "pg@~2.11.0",
+          "dependencies": {
+            "generic-pool": {
+              "version": "2.0.3",
+              "from": "generic-pool@2.0.3"
+            },
+            "buffer-writer": {
+              "version": "1.0.0",
+              "from": "buffer-writer@1.0.0"
+            },
+            "pgpass": {
+              "version": "0.0.1",
+              "from": "pgpass@0.0.1",
+              "dependencies": {
+                "split": {
+                  "version": "0.2.10",
+                  "from": "split@~0.2.10",
+                  "dependencies": {
+                    "through": {
+                      "version": "2.3.4",
+                      "from": "through@2"
+                    }
+                  }
+                }
+              }
+            },
+            "nan": {
+              "version": "0.6.0",
+              "from": "nan@~0.6.0"
+            }
+          }
+        }
+      }
+    }
+  }
+}

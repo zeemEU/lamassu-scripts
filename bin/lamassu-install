@@ -147,12 +147,11 @@ eval $install >> $debug 2>&1
 [ $? -ne 0 ] && fail "PostgreSQL installation failed"
 
 # Set up users and databases in Postgres.
-# Remark: do we want lamassu to be a super user?
 password=$(openssl rand -hex 32)
 su - postgres >> $debug 2>&1 <<EOF
   dropdb lamassu
   dropuser lamassu
-  psql -c "CREATE ROLE lamassu WITH LOGIN SUPERUSER PASSWORD '$password';"
+  psql -c "CREATE ROLE lamassu WITH LOGIN PASSWORD '$password';"
   createdb -O lamassu lamassu
 EOF
 

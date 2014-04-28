@@ -15,7 +15,7 @@ function upstart() {
   package="$1"
 
   cat > "/etc/init/$package"".conf" <<EOF
-exec $package --key /root/$package\.key --cert /root/$package\.crt
+exec $package --key $ssl_prefix/$package\.key --cert $ssl_prefix/$package\.crt
 respawn
 start on startup
 env DATABASE_URL=postgres://lamassu:$password@localhost/lamassu

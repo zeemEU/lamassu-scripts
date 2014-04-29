@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "read": "^1.0.5",
-    "lamassu-config": "~0.4.0"
+    "lamassu-config": "~0.4.1"
   },
   "description": "lamassu-scripts",
   "main": "bin/lamassu-bootstrap",

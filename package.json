@@ -5,7 +5,10 @@
   "bin": {
     "lamassu-install": "./bin/lamassu-install",
     "lamassu-passwd": "./bin/lamassu-passwd",
-    "lamassu-useradd": "./bin/lamassu-useradd"
+    "lamassu-useradd": "./bin/lamassu-useradd",
+    "lamassu-set-locale": "./bin/lamassu-set-locale",
+    "lamassu-unpair": "./bin/lamassu-unpair",
+    "lamassu-update": "./bin/lamassu-update"
   },
   "dependencies": {
     "read": "^1.0.5",

@@ -8,7 +8,10 @@
     "lamassu-useradd": "./bin/lamassu-useradd",
     "lamassu-set-locale": "./bin/lamassu-set-locale",
     "lamassu-unpair": "./bin/lamassu-unpair",
-    "lamassu-update": "./bin/lamassu-update"
+    "lamassu-update": "./bin/lamassu-update",
+    "lamassu-bitcoind-backup": "./bin/lamassu-bitcoind-backup",
+    "lamassu-bitcoind-install": "./bin/lamassu-bitcoind-install",
+    "lamassu-bitcoind-enable": "./bin/lamassu-bitcoind-enable"
   },
   "dependencies": {
     "read": "^1.0.5",

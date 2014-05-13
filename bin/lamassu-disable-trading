@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
+var LamassuConfig = require('lamassu-config');
+
+var psqlUrl = null;
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var config = new LamassuConfig(psqlUrl);
+
+config.readExchangesConfig(function (err, _config) {
+  if (err) throw err;
+  console.log('Trading was set to: %s', _config.exchanges.plugins.current.trade);
+  _config.exchanges.plugins.current.trade = null;
+  config.saveExchangesConfig(_config, function (err) {
+    if (err) throw err;
+    config.end();
+    console.log('Disabled trading.');
+  });
+});

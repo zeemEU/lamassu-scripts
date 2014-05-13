@@ -11,7 +11,8 @@
     "lamassu-update": "./bin/lamassu-update",
     "lamassu-bitcoind-backup": "./bin/lamassu-bitcoind-backup",
     "lamassu-bitcoind-install": "./bin/lamassu-bitcoind-install",
-    "lamassu-bitcoind-enable": "./bin/lamassu-bitcoind-enable"
+    "lamassu-bitcoind-enable": "./bin/lamassu-bitcoind-enable",
+    "lamassu-disable-trading": "./bin/lamassu-disable-trading"
   },
   "dependencies": {
     "read": "^1.0.5",

@@ -132,7 +132,7 @@ CREATE TABLE transactions (
   id uuid PRIMARY KEY,
   status text NOT NULL,
   tx_hash text,
-  device_fingerprint text,
+  device_fingerprint text NOT NULL,
   to_address text NOT NULL,
   satoshis integer,
   currency_code text,

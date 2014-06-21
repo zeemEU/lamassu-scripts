@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
+
+var psqlUrl;
+
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var pg = require('pg');
+
+getVersion(function(err, version) {
+  pg.end();
+  if (err) throw err;
+  console.log(version);
+});
+
+function getVersion(cb) {
+  pg.connect(psqlUrl, function (err, db, done) {
+    if (err) throw err;
+    db.query('SELECT version FROM migrations', function (err, result) {
+      done();
+      if (err && err.code === '42P01') {
+        return cb(null, -1);  // migrations table doesn't exist yet
+      }
+      if (err) return cb(err);
+      cb(null, result.rows[0].version);
+    });
+  });  
+}

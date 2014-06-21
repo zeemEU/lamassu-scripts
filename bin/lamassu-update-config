@@ -1,0 +1,55 @@
+#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
+var _ = require('lodash');
+
+var LamassuConfig = require('lamassu-config');
+
+var psqlUrl;
+
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var config = new LamassuConfig(psqlUrl);
+var updateConfigPath = process.argv[2];
+
+if (!updateConfigPath) {
+  console.log('\nConfiguration file name is required:');
+  console.log('lamassu-update-config <config file name>\n');
+  console.log('Loads a JSON formatted configuration file and merges it into current configuration.');
+  process.exit(1);
+}
+
+try {
+  var json = JSON.parse(fs.readFileSync(updateConfigPath));
+} catch (ex) {
+  if (ex.code === 'ENOENT') {
+    console.log('No such file: ' + updateConfigPath);
+  } else if (!ex.code) {
+    console.log('Error: Not a JSON file: ' + updateConfigPath);
+  } else {
+    console.log(ex.message);
+  }
+  process.exit(2);
+}
+
+if (!json.exchanges) {
+  console.log('Error: Invalid config file. Must begin with \'exchanges\' property.');
+  process.exit(3);
+}
+
+config.readExchangesConfig(function (err, res) {
+  if (err) throw err;
+  _.merge(res, json);
+  config.saveExchangesConfig(res, function (err) {
+    if (err) throw err;
+    config.end();
+    console.log('\nSuccess.');
+  });
+});

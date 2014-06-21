@@ -13,13 +13,13 @@ if [ ! $# -eq 1 ]; then
   echo "Please enter your email address."
   echo "Bitcoin wallet backups will automatically be sent there."
   echo
-  echo "lamassu-install-bitcoind <email_address>"
+  echo "lamassu-bitcoind-install <email_address>"
   echo
   exit 1
 elif [[ ! $EMAIL_ADDRESS =~ .+@.+\..+ ]]; then
   echo "Please enter a valid email address."
   echo
-  echo "lamassu-install-bitcoind <email_address>"
+  echo "lamassu-bitcoind-install <email_address>"
   exit 2
 fi
 
@@ -31,7 +31,7 @@ if ! gpg --list-public-keys --with-colons $EMAIL_ADDRESS &>/dev/null; then
   echo
   echo "You will be presented with a list of your PGP keys,"
   echo "you should choose the one you want to use."
-  echo "When you are done, run lamassu-install-bitcoind again."
+  echo "When you are done, run lamassu-bitcoind-install again."
   echo
   exit 3
 fi

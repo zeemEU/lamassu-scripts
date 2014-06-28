@@ -1,0 +1,58 @@
+#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
+var strftime = require('strftime');
+var pg = require('pg');
+
+var psqlUrl = null;
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var mixedCurrencies = false;
+var currency = null;
+
+pg.connect(psqlUrl, function (err, db, done) {
+  db.query('SELECT device_time FROM device_events ORDER by device_time DESC limit 2', function (err, result) {
+    if (err) fail(err);
+
+    var rowCount = result.rows.length;
+    if (rowCount === 0) fail('Cashbox has not been removed.');
+    if (rowCount === 1) fail('Cashbox has only been removed once.');
+
+    var deviceTimes = [result.rows[0].device_time, result.rows[1].device_time];
+    var total = 0;
+    db.query('SELECT denomination, currency_code, created ' + 
+      'FROM bills ' +
+      'WHERE device_time > $1 AND device_time < $2 ORDER BY device_time ASC',
+      [deviceTimes[1], deviceTimes[0]],
+      function (err, result) {
+        done();
+        pg.end();
+
+        if (err) fail(err);
+        result.rows.forEach(function(row) {
+          total += row.denomination;
+          var formattedTime = strftime('%F %T', row.created);
+          if (currency !== null && currency !== row.currency_code) mixedCurrencies = false;
+          currency = row.currency_code;
+          console.log('%s\t%d %s', formattedTime, row.denomination, row.currency_code);
+        });
+
+        console.log();
+        var currencyCode = mixedCurrencies ? '[Mixed currencies]' : currency;
+        console.log('Total: %d %s', total, currencyCode);
+    });
+  });
+});
+
+function fail(msg) {
+  console.log('Error: %s', msg);
+  pg.end();
+  process.exit(1);
+}

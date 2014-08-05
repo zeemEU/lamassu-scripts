@@ -105,7 +105,7 @@ crontab -
 
 echo
 echo "Installation was successful! bitcoind is now running."
-echo 
+echo
 echo "It will take about 24 hours for bitcoind to load the entire blockchain."
 echo
 echo "Please check your email for your first wallet backup."

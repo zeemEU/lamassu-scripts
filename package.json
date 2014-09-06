@@ -13,7 +13,7 @@
     "lamassu-bitcoind-install": "./bin/lamassu-bitcoind-install",
     "lamassu-bitcoind-enable": "./bin/lamassu-bitcoind-enable",
     "lamassu-disable-trading": "./bin/lamassu-disable-trading",
-    "lamassu-transactions-csv": "/bin/lamassu-transactions-csv"
+    "lamassu-transactions-csv": "./bin/lamassu-transactions-csv"
   },
   "dependencies": {
     "read": "^1.0.5",

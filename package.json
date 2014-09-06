@@ -1,6 +1,6 @@
 {
   "name": "lamassu-scripts",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
     "lamassu-install": "./bin/lamassu-install",

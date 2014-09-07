@@ -149,3 +149,24 @@ CREATE TABLE users (
   salt text NOT NULL,
   pwdHash text NOT NULL
 );
+
+CREATE TABLE bills (
+  id serial PRIMARY KEY,
+  device_fingerprint text NOT NULL,
+  denomination integer NOT NULL,
+  currency_code text NOT NULL,
+  satoshis integer NOT NULL,
+  to_address text NOT NULL,
+  transaction_id uuid NOT NULL,
+  device_time bigint NOT NULL,
+  created timestamp NOT NULL DEFAULT now()
+);
+
+CREATE TABLE device_events (
+  id serial PRIMARY KEY,
+  device_fingerprint text NOT NULL,
+  event_type text NOT NULL,
+  note text,
+  device_time bigint NOT NULL,
+  created timestamp NOT NULL DEFAULT now()
+);

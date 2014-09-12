@@ -1,4 +1,4 @@
--- db schema 
+-- db schema
 SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
@@ -11,7 +11,7 @@ SET search_path = public, pg_catalog;
 SET default_tablespace = '';
 SET default_with_oids = false;
 
--- Name: user_config; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: user_config; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 CREATE TABLE user_config (
   id serial PRIMARY KEY,
   type text NOT NULL,
@@ -129,7 +129,8 @@ CREATE TABLE pairing_tokens (
 );
 
 CREATE TABLE transactions (
-  id uuid PRIMARY KEY,
+  id uuid,
+  part integer NOT NULL DEFAULT 1,
   status text NOT NULL,
   tx_hash text,
   device_fingerprint text NOT NULL,
@@ -139,10 +140,11 @@ CREATE TABLE transactions (
   fiat decimal,
   error text,
   created timestamp NOT NULL DEFAULT now(),
-  completed timestamp
+  completed timestamp,
+  PRIMARY KEY(id, part)
 );
 
--- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 CREATE TABLE users (
   id serial PRIMARY KEY,
   userName text NOT NULL UNIQUE,

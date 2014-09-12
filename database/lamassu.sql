@@ -129,17 +129,19 @@ CREATE TABLE pairing_tokens (
 );
 
 CREATE TABLE transactions (
-  id uuid PRIMARY KEY,
+  id uuid,
+  part integer NOT NULL DEFAULT 1,
   status text NOT NULL,
   tx_hash text,
-  device_fingerprint text,
+  device_fingerprint text NOT NULL,
   to_address text NOT NULL,
   satoshis integer,
   currency_code text,
   fiat decimal,
   error text,
   created timestamp NOT NULL DEFAULT now(),
-  completed timestamp
+  completed timestamp,
+  PRIMARY KEY(id, part)
 );
 
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace:

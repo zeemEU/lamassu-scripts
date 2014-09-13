@@ -159,6 +159,8 @@ CREATE TABLE bills (
   denomination integer NOT NULL,
   currency_code text NOT NULL,
   satoshis integer NOT NULL,
+  total_satoshis integer NOT NULL,
+  total_fiat integer NOT NULL,
   to_address text NOT NULL,
   transaction_id uuid NOT NULL,
   device_time bigint NOT NULL,

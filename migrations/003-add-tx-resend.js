@@ -24,13 +24,31 @@ exports.up = function(db, next) {
     // add part field
     'ALTER TABLE transactions ADD part integer NOT NULL DEFAULT 1',
 
-    // add composite key
-    'ALTER TABLE transactions ADD CONSTRAINT PRIMARY KEY(id, part)'
+    // add completed field
+    'ALTER TABLE transactions ADD is_completed boolean NOT NULL DEFAULT false',
 
+    // add composite key
+    'ALTER TABLE transactions ADD CONSTRAINT user_tx PRIMARY KEY(id, part)'
   ],
   next);
 };
 
+
+// this part WILL cause problems if any value of `part` is different than 1
 exports.down = function(db, next) {
-  db.query('', next);
+  executeQueries(db, [
+
+    // drop composite key
+    'ALTER TABLE transactions DROP CONSTRAINT user_tx',
+
+    // remove completed field
+    'ALTER TABLE transactions DROP IF EXISTS is_completed',
+
+    // remove part field
+    'ALTER TABLE transactions DROP IF EXISTS part',
+
+    // add composite key
+    'ALTER TABLE transactions ADD PRIMARY KEY(id)'
+  ],
+  next);
 };

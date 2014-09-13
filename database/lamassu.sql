@@ -141,7 +141,8 @@ CREATE TABLE transactions (
   error text,
   created timestamp NOT NULL DEFAULT now(),
   completed timestamp,
-  PRIMARY KEY(id, part)
+  is_completed boolean NOT NULL DEFAULT false,
+  CONSTRAINT user_tx PRIMARY KEY(id, part)
 );
 
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace:

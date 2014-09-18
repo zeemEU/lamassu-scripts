@@ -162,7 +162,7 @@ CREATE TABLE bills (
   total_satoshis integer NOT NULL,
   total_fiat integer NOT NULL,
   to_address text NOT NULL,
-  transaction_id uuid NOT NULL,
+  transaction_id uuid UNIQUE NOT NULL DEFAULT uuid_in(md5(random()::text || now()::text)::cstring),
   device_time bigint NOT NULL,
   created timestamp NOT NULL DEFAULT now()
 );

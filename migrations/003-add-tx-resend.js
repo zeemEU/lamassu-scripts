@@ -29,9 +29,10 @@ exports.up = function(db, next) {
     'ALTER TABLE transactions ADD CONSTRAINT user_tx PRIMARY KEY(id, part)',
 
 
-    // add total_satoshis and total_fiat soon
-    'ALTER TABLE bills ADD total_satoshis integer NOT NULL',
-    'ALTER TABLE bills ADD total_fiat integer NOT NULL'
+    // add uuid, total_satoshis and total_fiat
+    'ALTER TABLE bills ADD uuid uuid UNIQUE NOT NULL DEFAULT uuid_in(md5(random()::text || now()::text)::cstring)',
+    'ALTER TABLE bills ADD total_satoshis integer',
+    'ALTER TABLE bills ADD total_fiat integer'
   ],
   next);
 };
@@ -52,7 +53,8 @@ exports.down = function(db, next) {
     'ALTER TABLE transactions ADD PRIMARY KEY(id)',
 
 
-    // drop total_satoshis and total_fiat soon
+    // drop uuid, total_satoshis and total_fiat soon
+    'ALTER TABLE bills DROP IF EXISTS uuid',
     'ALTER TABLE bills DROP IF EXISTS total_satoshis',
     'ALTER TABLE bills DROP IF EXISTS total_fiat'
   ],

@@ -130,7 +130,7 @@ CREATE TABLE pairing_tokens (
 
 CREATE TABLE transactions (
   id uuid,
-  part integer NOT NULL DEFAULT 1,
+  partial_id integer NOT NULL DEFAULT 1,
   status text NOT NULL,
   tx_hash text,
   device_fingerprint text NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE transactions (
   created timestamp NOT NULL DEFAULT now(),
   completed timestamp,
   is_completed boolean NOT NULL DEFAULT false,
-  CONSTRAINT user_tx PRIMARY KEY(id, part)
+  CONSTRAINT user_tx PRIMARY KEY(id, partial_id)
 );
 
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace:

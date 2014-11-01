@@ -1,0 +1,2 @@
+- pull all migrations > version from directory
+- run SQL in those migrations

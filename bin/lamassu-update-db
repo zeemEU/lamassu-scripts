@@ -1,0 +1,89 @@
+#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
+var async = require('async');
+
+var psqlUrl;
+
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var pg = require('pg');
+
+var migrations = fs.readdirSync('./migrations');
+
+function filePosition(filename) {
+  return parseInt(filename.split('-', 2)[0], 10);
+}
+
+function compareFiles(a, b) {
+  return filePosition(a) - filePosition(b);
+}
+
+getVersion(function(err, version) {
+  if (err) throw err;
+
+  var queue = [];
+  migrations.sort(compareFiles).forEach(function(filename) {
+    var position = filePosition(filename);
+    if (position > version) queue.push(filename);
+  });
+
+  var currentVersion = version;
+
+  function migrateUp(filename, cb) {
+    console.log('Migrating ' + filename +'...');
+    var migration = require('../migrations/' + filename);
+    pg.connect(psqlUrl, function (err, db, done) {
+      migration.up(db, function (err) {
+        done();
+        if (err) return cb(err);
+        currentVersion = filePosition(filename);
+        console.log('Completed migrating ' + filename);
+        cb();
+      });
+    });
+  }
+
+  async.eachSeries(queue, function (filename, cb) {
+    migrateUp(filename, cb);
+  }, function (migrateErr) {
+    updateVersion(currentVersion, function (err) {
+      if (err) throw err;
+      pg.end();
+      if (err) return console.log(err);
+      if (migrateErr) return console.log(migrateErr.message);
+      console.log('\nSuccess.');
+    });
+  });
+});
+
+function updateVersion(version, cb) {
+  pg.connect(psqlUrl, function (err, db, done) {
+    if (err) throw err;
+    db.query('UPDATE migrations SET version = $1', [version], function (err) {
+      done();
+      cb(err);
+    });
+  });  
+}
+
+function getVersion(cb) {
+  pg.connect(psqlUrl, function (err, db, done) {
+    if (err) throw err;
+    db.query('SELECT version FROM migrations', function (err, result) {
+      done();
+      if (err && err.code === '42P01') {
+        return cb(null, -1);  // migrations table doesn't exist yet
+      }
+      if (err) return cb(err);
+      cb(null, result.rows[0].version);
+    });
+  });  
+}

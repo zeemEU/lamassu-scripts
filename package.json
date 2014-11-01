@@ -19,7 +19,9 @@
   "dependencies": {
     "read": "^1.0.5",
     "lamassu-config": "~0.4.1",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "async": "~0.9.0",
+    "strftime": "~0.8.1"
   },
   "description": "lamassu-scripts",
   "main": "bin/lamassu-bootstrap",

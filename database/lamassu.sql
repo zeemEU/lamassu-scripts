@@ -31,11 +31,13 @@ COPY user_config (id, type, data) FROM stdin;
     "plugins" : {\
       "current": {\
         "ticker": "bitpay",\
-        "transfer": "blockchain"\
+        "transfer": "blockchain",\
+        "info": "chain"\
       },\
       "settings": {\
         "bitpay": {},\
-        "blockchain" : {}\
+        "blockchain" : {},\
+        "chain": {}\
       }\
     }\
   }\
@@ -132,6 +134,7 @@ CREATE TABLE transactions (
   id uuid,
   partial_id integer NOT NULL DEFAULT 1,
   status text NOT NULL,
+  tx_type text NOT NULL DEFAULT 'buy',
   tx_hash text,
   device_fingerprint text NOT NULL,
   to_address text NOT NULL,

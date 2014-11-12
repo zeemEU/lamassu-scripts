@@ -41,6 +41,7 @@ getVersion(function(err, version) {
     console.log('Migrating ' + filename +'...');
     var migration = require('../migrations/' + filename);
     pg.connect(psqlUrl, function (err, db, done) {
+      if (err) throw err;
       migration.up(db, function (err) {
         done();
         if (err) return cb(err);
@@ -71,7 +72,7 @@ function updateVersion(version, cb) {
       done();
       cb(err);
     });
-  });  
+  });
 }
 
 function getVersion(cb) {
@@ -85,5 +86,5 @@ function getVersion(cb) {
       if (err) return cb(err);
       cb(null, result.rows[0].version);
     });
-  });  
+  });
 }

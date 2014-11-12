@@ -6,9 +6,8 @@ function executeQueries(db, queries, cb) {
 
     if (!query) return cb(null);
 
-    client.query(query, function(err, response) {
+    db.query(query, function(err, response) {
       if (err) return cb(err);
-      console.dir(response);
       next();
     });
 

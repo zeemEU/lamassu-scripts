@@ -132,7 +132,6 @@ CREATE TABLE pairing_tokens (
 
 CREATE TABLE transactions (
   id uuid,
-  partial_id integer NOT NULL DEFAULT 1,
   status text NOT NULL,
   tx_type text NOT NULL DEFAULT 'buy',
   tx_hash text,
@@ -143,9 +142,7 @@ CREATE TABLE transactions (
   fiat decimal,
   error text,
   created timestamp NOT NULL DEFAULT now(),
-  completed timestamp,
-  is_completed boolean NOT NULL DEFAULT false,
-  CONSTRAINT user_tx PRIMARY KEY(id, partial_id)
+  completed timestamp
 );
 
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
@@ -154,28 +151,4 @@ CREATE TABLE users (
   userName text NOT NULL UNIQUE,
   salt text NOT NULL,
   pwdHash text NOT NULL
-);
-
-CREATE TABLE bills (
-  id serial PRIMARY KEY,
-  device_fingerprint text NOT NULL,
-  denomination integer NOT NULL,
-  currency_code text NOT NULL,
-  satoshis integer NOT NULL,
-  total_satoshis integer NOT NULL,
-  total_fiat integer NOT NULL,
-  to_address text NOT NULL,
-  transaction_id uuid NOT NULL,
-  uuid uuid UNIQUE NOT NULL DEFAULT uuid_in(md5(random()::text || now()::text)::cstring),
-  device_time bigint NOT NULL,
-  created timestamp NOT NULL DEFAULT now()
-);
-
-CREATE TABLE device_events (
-  id serial PRIMARY KEY,
-  device_fingerprint text NOT NULL,
-  event_type text NOT NULL,
-  note text,
-  device_time bigint NOT NULL,
-  created timestamp NOT NULL DEFAULT now()
 );

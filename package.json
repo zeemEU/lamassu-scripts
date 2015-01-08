@@ -28,6 +28,7 @@
     "minimist": "^1.1.0",
     "moniker": "^0.1.2",
     "pad": "0.0.5",
+    "pg": "^4.1.1",
     "read": "^1.0.5"
   },
   "description": "lamassu-scripts",

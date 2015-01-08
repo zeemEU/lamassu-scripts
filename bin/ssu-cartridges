@@ -1,0 +1,83 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var DBH = require('dbh-pg');
+var P = require('bluebird');
+var using = P.using;
+var argv = process.argv.slice(2);
+var _ = require('lodash');
+var conString = require('../lib/db');
+
+var db = new DBH(conString);
+
+function usage() {
+  console.log('Set denominations of bill dispenser cartridges.');
+  console.log('Usage: ssu-cartridges [<top denomination> <bottom denomination> <virtual denomination>]');
+  console.log('\nExample: ssu-cartridges 5 20 10');
+  console.log('Sets top cartridge for $5 bills, bottom cartridge for $20 bills.');
+  console.log('Also, provides an additional button for a user to select $10, which will dispense ');
+  console.log('two $5 bills. USD is given as an example, but values are based on configured currency.');
+  console.log('Virtual denomination must be a multiple of either the top or bottom denominations.\n');
+}
+
+function printConfig(config, currency) {
+  var cartridges = config.exchanges.settings.cartridges;
+  function formatAmount(amount) { return amount.toString(10) + ' ' + currency; }
+
+  if (!cartridges) return console.log('Cartridges are not set up yet.');
+
+  var vCartridge = config.exchanges.settings.virtualCartridges[0];
+  console.log('Top: %s, Bottom: %s, Virtual: %s',
+    formatAmount(cartridges[0]), formatAmount(cartridges[1]), formatAmount(vCartridge));
+}
+
+function validateArgs() {
+  function bad(msg) { if (msg) console.log('Error: %s\n', msg); return false; }
+  if (argv.length !== 3) return bad();
+  var cartridges = [argv[0], argv[1]];
+  var vCartridges = [argv[2]];
+  var vCartridge = vCartridges[0];
+  var all = _.flatten([cartridges, vCartridges]);
+  function inValid(arg) { return _.isNumber(arg) && arg > 0; }
+  function isMultiple(c) { return vCartridge % c === 0; }
+  function isEqual(c) { return c === vCartridge; }
+  if (_.some(all, inValid)) return bad('All values must be positive numbers');
+  if (!_.some(cartridges, isMultiple)) return bad('Virtual cartridge must be a multiple of a cartridge.');
+  if (_.some(cartridges, isEqual)) return bad('Virtual cartridge amount must be different from cartridges.')
+  return true;
+}
+
+var badArgs = !validateArgs();
+if (badArgs) usage();
+
+using(db.conn(), function(con) {
+  var currency;
+
+  return con
+  .fetchOne('SELECT data FROM user_config WHERE type=$1', ['unit'])
+  .then(function(res) {
+    currency = res.data.brain.locale.currency;
+    return this.fetchOne('SELECT data FROM user_config WHERE type=$1', ['exchanges']);
+  })
+  .then(function(res) {
+    var config = res.data;
+    console.log('Previous settings:');
+    printConfig(config, currency);
+    if (badArgs) process.exit(1);
+    var cartridges = [argv[0], argv[1]];
+    var vCartridge = [argv[2]];
+    config.exchanges.settings.cartridges = cartridges;
+    config.exchanges.settings.virtualCartridges = vCartridge;
+    return this.exec('UPDATE user_config SET data=$1 WHERE type=$2', [config, 'exchanges'])
+    .then(function() {
+      console.log('\nNew settings:');
+      printConfig(config, currency);
+      process.exit(0);
+    });
+  })
+  .catch(function(err) {
+    console.log(err.message);
+    process.exit(2);
+  });
+});

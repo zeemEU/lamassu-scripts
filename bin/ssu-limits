@@ -7,8 +7,8 @@ var argv = require('minimist')(process.argv.slice(2));
 var _ = require('lodash');
 
 function usage() {
-  console.log('\nssu-limits [-a <accept>] [-d <dispense>] [-z <zero-conf>] [-i <id verify>]');
   console.log('Sets limits for lamassu-server');
+  console.log('Usage: ssu-limits [-a <accept>] [-d <dispense>] [-z <zero-conf>] [-i <id verify>]');
   console.log('\nExamples:\nssu-limits -z 200 -d 500');
   console.log('Dispenses up to $500 per transaction, accepts zero confirmations for $200 or less.');
   console.log('\nssu-limits -a 1000');
@@ -44,6 +44,7 @@ client.connect(function(err) {
 
   var sql = 'SELECT data from user_config WHERE type=$1';
   client.query(sql, ['exchanges'], function(err, res) {
+    if (err) return bail(err);
     var row = _.first(res.rows);
     if (!row) return bail('No configuration present in database.');
     var config = row.data;

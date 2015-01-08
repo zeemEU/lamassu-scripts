@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var fs = require('fs');
+var argv = require('minimist')(process.argv.slice(2));
+var pg = require('pg');
+var moniker = require('moniker');
+var pad = require('pad');
+var async = require('async');
+
+var psqlUrl;
+
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var client = new pg.Client(psqlUrl);
+var newRows = [];
+
+function updateName(row, cb) {
+  var name = row.name || moniker.choose();
+  var fingerprint = row.fingerprint;
+  newRows.push({name: name, fingerprint: fingerprint});
+  if (row.name) return cb();
+  client.query('UPDATE devices SET name=$1 WHERE fingerprint=$2',
+    [name, fingerprint], function(err) {
+      cb(err);
+  });
+}
+
+client.connect(function(err) {
+  if (err) return console.log(err);
+  var sql = 'SELECT * FROM devices';
+  client.query(sql, function(err, res) {
+    var rows = res.rows;
+    if (rows.length === 0) return 'No paired devices.';
+    async.each(rows, updateName, function(err) {
+      client.end();
+      if (err) return console.log(err);
+
+      for (var i = 0; i < newRows.length; i++) {
+        var row = newRows[i];
+        var fp = row.fingerprint;
+        var name = row.name;
+        console.log('%s\t%s', pad(name, 16), fp);
+      }
+    });
+  });
+});

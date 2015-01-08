@@ -2,24 +2,11 @@
 
 'use strict';
 
-var fs = require('fs');
-var argv = require('minimist')(process.argv.slice(2));
-var pg = require('pg');
 var moniker = require('moniker');
 var pad = require('pad');
 var async = require('async');
+var client = require('../lib/db');
 
-var psqlUrl;
-
-try {
-  psqlUrl = process.env.DATABASE_URL ||
-            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
-}
-catch (ex) {
-  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
-}
-
-var client = new pg.Client(psqlUrl);
 var newRows = [];
 
 function updateName(row, cb) {
@@ -35,7 +22,7 @@ function updateName(row, cb) {
 
 client.connect(function(err) {
   if (err) return console.log(err);
-  var sql = 'SELECT * FROM devices';
+  var sql = 'SELECT * FROM devices ORDER BY id';
   client.query(sql, function(err, res) {
     var rows = res.rows;
     if (rows.length === 0) return 'No paired devices.';
@@ -47,7 +34,7 @@ client.connect(function(err) {
         var row = newRows[i];
         var fp = row.fingerprint;
         var name = row.name;
-        console.log('%s\t%s', pad(name, 16), fp);
+        console.log('%s %s', pad(name, 24), fp);
       }
     });
   });

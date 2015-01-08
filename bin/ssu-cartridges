@@ -39,12 +39,12 @@ function validateArgs() {
   var vCartridges = [argv[2]];
   var vCartridge = vCartridges[0];
   var all = _.flatten([cartridges, vCartridges]);
-  function inValid(arg) { return _.isNumber(arg) && arg > 0; }
+  function valid(arg) { return _.isNumber(parseInt(arg, 10)) && arg > 0; }
   function isMultiple(c) { return vCartridge % c === 0; }
   function isEqual(c) { return c === vCartridge; }
-  if (_.some(all, inValid)) return bad('All values must be positive numbers');
+  if (!_.every(all, valid)) return bad('All values must be positive numbers');
   if (!_.some(cartridges, isMultiple)) return bad('Virtual cartridge must be a multiple of a cartridge.');
-  if (_.some(cartridges, isEqual)) return bad('Virtual cartridge amount must be different from cartridges.')
+  if (_.some(cartridges, isEqual)) return bad('Virtual cartridge amount must be different from cartridges.');
   return true;
 }
 

@@ -14,7 +14,10 @@
     "lamassu-bitcoind-enable": "./bin/lamassu-bitcoind-enable",
     "lamassu-disable-trading": "./bin/lamassu-disable-trading",
     "lamassu-update-config": "./bin/lamassu-update-config",
-    "lamassu-transactions-csv": "./bin/lamassu-transactions-csv"
+    "lamassu-transactions-csv": "./bin/lamassu-transactions-csv",
+    "ssu-name": "./bin/ssu-name",
+    "ssu-limits": "./bin/ssu-limits",
+    "ssu-bills": "./bin/ssu-bills"
   },
   "dependencies": {
     "async": "^0.9.0",

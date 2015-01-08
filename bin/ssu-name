@@ -5,7 +5,8 @@
 var moniker = require('moniker');
 var pad = require('pad');
 var async = require('async');
-var client = require('../lib/db');
+var pg = require('pg');
+var client = new pg.Client(require('../lib/db'));
 
 var newRows = [];
 

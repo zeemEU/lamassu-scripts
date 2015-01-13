@@ -12,6 +12,8 @@ var conString = require('../lib/db');
 var db = new DBH(conString);
 var name, top, bottom, fingerprint;
 
+var noArgs = argv.length === 0;
+
 function usage() {
   console.log('Reset bill counts for dispenser.');
   console.log('Usage: ssu-bills [<machine name>] [<top count> <bottom count>]');
@@ -20,9 +22,9 @@ function usage() {
   console.log('If you\'re only operating one machine, machine name is optional.\n');
 }
 
-function printConfig(counts) {
-  if (!counts) return console.log('No bill counts are recorded for this machine yet.');
-  console.log('Name: %s, Top: %d, Bottom: %d', name, counts.count1, counts.count2);
+function printConfig(counts, _name) {
+  if (!counts) return console.log('Name: %s, No bill counts are recorded for this machine yet', _name);
+  console.log('Name: %s, Top: %d, Bottom: %d', _name, counts.count1, counts.count2);
 }
 
 function bail(msg) {
@@ -44,42 +46,70 @@ function validateArgs() {
 var badArgs = !validateArgs();
 if (badArgs) usage();
 
-using(db.conn(), function(con) {
-  return con
-  .fetchAll('SELECT name, fingerprint FROM devices')
-  .then(function(rows) {
-    if (rows.length === 0) bail('No machines are paired yet.');
-    if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.');
-    if (!name) name = rows[0].name;
-    var chosen = _.find(rows, {name: name});
-    if (!chosen) bail('No such machine: ' + name);
-    fingerprint = chosen.fingerprint;
-    return this.fetchOne('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC', [fingerprint]);
-  })
-  .then(function(row) {
-    console.log('\nPrevious count:');
-    printConfig(row);
-    if (badArgs) process.exit(5);
-    var rec = {
-      device_fingerprint: fingerprint,
-      count1: top,
-      count2: bottom,
-      refill: true,
-      dispense1: '0',
-      reject1: '0',
-      dispense2: '0',
-      reject2: '0'
-    };
-    return this.insert('dispenses', rec);
-  })
-  .then(function() {
-    console.log('\nNew count:');
-    printConfig({count1: top, count2: bottom});
-    process.exit(0);
-  })
-  .catch(function(err) {
-    console.log(err.message);
-    console.log(err.stack);
-    process.exit(3);
+if (noArgs) {
+  using(db.conn(), function(con) {
+    return con
+    .fetchAll('SELECT name, fingerprint FROM devices')
+    .then(function(rows) {
+      if (rows.length === 0) bail('No machines are paired yet.');
+      var sql = 'SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC';
+      var self = this;
+      var promises = _.map(rows, function(row) {
+        return self.fetchOne(sql, [row.fingerprint]);
+      });
+      console.log('Current counts:');
+      P.all(promises).then(function(countRows) {
+        _.forEach(countRows, function(row, i) {
+          printConfig(row, rows[i]. name);
+        });
+        process.exit(0);
+      });
+    })
+    .catch(function(err) {
+      console.log(err.message);
+      console.log(err.stack);
+      process.exit(3);
+    });
+
   });
-});
+} else {
+  using(db.conn(), function(con) {
+    return con
+    .fetchAll('SELECT name, fingerprint FROM devices')
+    .then(function(rows) {
+      if (rows.length === 0) bail('No machines are paired yet.');
+      if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.');
+      if (!name) name = rows[0].name;
+      var chosen = _.find(rows, {name: name});
+      if (!chosen) bail('No such machine: ' + name);
+      fingerprint = chosen.fingerprint;
+      return this.fetchOne('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC', [fingerprint]);
+    })
+    .then(function(row) {
+      console.log('\nPrevious count:');
+      printConfig(row, name);
+      if (badArgs) process.exit(5);
+      var rec = {
+        device_fingerprint: fingerprint,
+        count1: top,
+        count2: bottom,
+        refill: true,
+        dispense1: '0',
+        reject1: '0',
+        dispense2: '0',
+        reject2: '0'
+      };
+      return this.insert('dispenses', rec);
+    })
+    .then(function() {
+      console.log('\nNew count:');
+      printConfig({count1: top, count2: bottom}, name);
+      process.exit(0);
+    })
+    .catch(function(err) {
+      console.log(err.message);
+      console.log(err.stack);
+      process.exit(3);
+    });
+  });
+}

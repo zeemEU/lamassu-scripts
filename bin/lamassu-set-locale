@@ -7,6 +7,7 @@ var psqlUrl;
 var _currentConfig = null;
 var _currencyWasSet = false;
 var _primaryWasSet = false;
+var _countryWasSet = false;
 var _locale = null;
 
 try {
@@ -21,10 +22,13 @@ var config = new LamassuConfig(psqlUrl);
 
 function usage() {
   console.log();
-  console.log('lamassu-set-locale [<currency>] [<locale>] [<locale>]');
+  console.log('lamassu-set-locale [<country>] [<currency>] [<locale>] [<locale>]');
   console.log();
   console.log('Examples');
   console.log('--------');
+  console.log();
+  console.log('Updates country to Canada:');
+  console.log('lamassu-set-locale CA');
   console.log();
   console.log('Updates currency to Swiss Francs:');
   console.log('lamassu-set-locale CHF');
@@ -61,6 +65,13 @@ function saveConfig(cb) {
 }
 
 function process_arg(arg) {
+  if (/^[A-Z][A-Z]$/.test(arg)) {
+    if (_countryWasSet) return onError(new Error('More than one country specified'));
+    _locale.localeInfo.country = arg;
+    _countryWasSet = true;
+    return;
+  }
+
   if (/^[A-Z][A-Z][A-Z]$/.test(arg)) {
     if (_currencyWasSet) return onError(new Error('More than one currency specified'));
     _locale.currency = arg;

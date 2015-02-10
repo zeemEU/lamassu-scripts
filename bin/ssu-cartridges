@@ -9,23 +9,26 @@ var argv = process.argv.slice(2);
 var _ = require('lodash');
 var conString = require('../lib/db');
 
+var off = argv.length === 1 && argv[0].toLowerCase() === 'off';
 var db = new DBH(conString);
 
 function usage() {
   console.log('Set denominations of bill dispenser cartridges.');
-  console.log('Usage: ssu-cartridges [<top denomination> <bottom denomination> <virtual denomination>]');
+  console.log('Usage: ssu-cartridges [<top denomination> <bottom denomination> <virtual denomination>] [off]');
   console.log('\nExample: ssu-cartridges 5 20 10');
   console.log('Sets top cartridge for $5 bills, bottom cartridge for $20 bills.');
   console.log('Also, provides an additional button for a user to select $10, which will dispense ');
   console.log('two $5 bills. USD is given as an example, but values are based on configured currency.');
   console.log('Virtual denomination must be a multiple of either the top or bottom denominations.\n');
+  console.log('To go back to one-way mode, run:');
+  console.log('ssu-cartridges off\n');
 }
 
 function printConfig(config, currency) {
   var cartridges = config.exchanges.settings.cartridges;
   function formatAmount(amount) { return amount.toString(10) + ' ' + currency; }
 
-  if (!cartridges) return console.log('Cartridges are not set up yet.');
+  if (!cartridges) return console.log('Server is in one-way mode.');
 
   var vCartridge = config.exchanges.settings.virtualCartridges[0];
   console.log('Top: %s, Bottom: %s, Virtual: %s',
@@ -34,6 +37,7 @@ function printConfig(config, currency) {
 
 function validateArgs() {
   function bad(msg) { if (msg) console.log('Error: %s\n', msg); return false; }
+  if (off) return true;
   if (argv.length !== 3) return bad();
   var cartridges = [argv[0], argv[1]];
   var vCartridges = [argv[2]];
@@ -62,11 +66,22 @@ using(db.conn(), function(con) {
   })
   .then(function(res) {
     var config = res.data;
-    console.log('Previous settings:');
+    var cartridges, vCartridge;
+
+    if (badArgs) console.log('Current settings:');
+    else console.log('Previous settings:');
+
     printConfig(config, currency);
     if (badArgs) process.exit(1);
-    var cartridges = [argv[0], argv[1]];
-    var vCartridge = [argv[2]];
+
+    if (off) {
+      cartridges = null;
+      vCartridge = null;
+    } else {
+      cartridges = [argv[0], argv[1]];
+      vCartridge = [argv[2]];
+    }
+
     config.exchanges.settings.cartridges = cartridges;
     config.exchanges.settings.virtualCartridges = vCartridge;
     return this.exec('UPDATE user_config SET data=$1 WHERE type=$2', [config, 'exchanges'])

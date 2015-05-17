@@ -19,7 +19,8 @@
     "ssu-limits": "./bin/ssu-limits",
     "ssu-bills": "./bin/ssu-bills",
     "ssu-cartridges": "./bin/ssu-cartridges",
-    "ssu-remit": "./bin/ssu-remit"
+    "ssu-remit": "./bin/ssu-remit",
+    "ssu-raqia": "./bin/ssu-raqia"
   },
   "dependencies": {
     "async": "^0.9.0",

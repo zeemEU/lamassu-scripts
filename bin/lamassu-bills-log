@@ -18,11 +18,11 @@ then
   DEBIAN_FRONTEND=noninteractive apt-get install -y mutt >/dev/null;
 fi
 
-BILLS_FILE=/tmp/bills-$(date -u "+%Y-%m-%d_%H-%M-%S").csv
+BILLS_FILE=/tmp/bills-$HOSTNAME-$(date -u "+%Y-%m-%d_%H-%M-%S").csv
 su - postgres -c "psql \"lamassu\" -Atc \"COPY bills to '$BILLS_FILE' WITH CSV HEADER\""
 gpg --batch --trust-model always -e -r $EMAIL_ADDRESS $BILLS_FILE
 rm $BILLS_FILE
 export EMAIL="Bills Log <$EMAIL_ADDRESS>"
-echo "Attached is your encrypted bills log." | mutt -s "Encrypted machine bills" -a $BILLS_FILE.gpg -- $EMAIL_ADDRESS
+echo "Attached is your encrypted bills log." | mutt -s "Encrypted machine bills from $HOSTNAME" -a $BILLS_FILE.gpg -- $EMAIL_ADDRESS
 rm $BILLS_FILE.gpg
 echo "Bills log sent to $EMAIL_ADDRESS. If it doesn't appear, check your spam folder."

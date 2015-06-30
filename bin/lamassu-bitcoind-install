@@ -95,7 +95,7 @@ EOF
 start bitcoind
 
 echo "Waiting for bitcoind to load."
-until bitcoind getblockcount &>/dev/null; do sleep 1; done
+until bitcoin-cli getblockcount &>/dev/null; do sleep 1; done
 
 # Set up wallet backup cron job
 echo -e "MAILTO=$EMAIL_ADDRESS\n00 05 * * * /usr/local/bin/lamassu-bitcoind-backup \"$EMAIL_ADDRESS\"" | \
@@ -113,4 +113,3 @@ echo
 echo "When your blockchain has caught up, run lamassu-bitcoind-enable to start"
 echo "using bitcoind as your remote server wallet."
 echo
-

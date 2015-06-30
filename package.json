@@ -1,6 +1,6 @@
 {
   "name": "lamassu-scripts",
-  "version": "0.2.10",
+  "version": "0.2.12",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
     "lamassu-install": "./bin/lamassu-install",
@@ -18,7 +18,10 @@
     "ssu-name": "./bin/ssu-name",
     "ssu-limits": "./bin/ssu-limits",
     "ssu-bills": "./bin/ssu-bills",
-    "ssu-cartridges": "./bin/ssu-cartridges"
+    "ssu-cartridges": "./bin/ssu-cartridges",
+    "ssu-remit": "./bin/ssu-remit",
+    "ssu-raqia": "./bin/ssu-raqia",
+    "lamassu-bills-log": "./bin/lamassu-bills-log"
   },
   "dependencies": {
     "async": "^0.9.0",

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -e
+
+EMAIL_ADDRESS=$1
+if [ ! $# -eq 1 ]; then
+  echo "lamassu-tx-unencrypted <email_address>"
+  exit 1
+elif [[ ! $EMAIL_ADDRESS =~ .+@.+\..+ ]]; then
+  echo "Please enter a valid email address."
+  echo
+  echo "lamassu-tx-unencrypted <email_address>"
+  exit 1
+fi
+
+if [ $(dpkg-query -W -f='${Status}' mutt 2>/dev/null | grep -c "ok installed") -eq 0 ];
+then
+  echo "Mutt not installed. Installing..."
+  DEBIAN_FRONTEND=noninteractive apt-get install -y mutt >/dev/null;
+fi
+
+TRANSACTIONS_FILE=/tmp/transactions-$(date -u "+%Y-%m-%d_%H-%M-%S").csv
+su - postgres -c "psql \"lamassu\" -Atc \"COPY transactions to '$TRANSACTIONS_FILE' WITH CSV HEADER\""
+export EMAIL="Transactions Log <$EMAIL_ADDRESS>"
+echo "Attached is your unencrypted transactions log." | mutt -s "Unencrypted machine transactions from $HOSTNAME" -a $TRANSACTIONS_FILE -- $EMAIL_ADDRESS
+rm $TRANSACTIONS_FILE
+echo "Transaction log sent to $EMAIL_ADDRESS. If it doesn't appear, check your spam folder."

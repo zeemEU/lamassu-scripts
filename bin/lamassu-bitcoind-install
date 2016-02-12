@@ -40,7 +40,7 @@ echo "Updating your system for bitcoind. Might take a few minutes."
 {
 apt-get update -y
 apt-get upgrade -y
-DEBIAN_FRONTEND=noninteractive apt-get install software-properties-common python-software-properties postfix mutt -y
+DEBIAN_FRONTEND=noninteractive apt-get install software-properties-common python-software-properties postfix mutt -y --force-yes
 } &>/dev/null
 
 # set up postfix for emailing backups

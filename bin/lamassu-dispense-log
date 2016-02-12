@@ -15,7 +15,7 @@ fi
 if [ $(dpkg-query -W -f='${Status}' mutt 2>/dev/null | grep -c "ok installed") -eq 0 ];
 then
   echo "Mutt not installed. Installing..."
-  DEBIAN_FRONTEND=noninteractive apt-get install -y mutt >/dev/null;
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes mutt >/dev/null;
 fi
 
 DISPENSES_FILE=/tmp/dispenses-$HOSTNAME-$(date -u "+%Y-%m-%d_%H-%M-%S").csv

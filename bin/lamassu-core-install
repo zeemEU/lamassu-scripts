@@ -13,13 +13,13 @@ if [ ! $# -eq 1 ]; then
   echo "Please enter your email address."
   echo "Bitcoin wallet backups will automatically be sent there."
   echo
-  echo "lamassu-bitcoind-install <email_address>"
+  echo "lamassu-core-install <email_address>"
   echo
   exit 1
 elif [[ ! $EMAIL_ADDRESS =~ .+@.+\..+ ]]; then
   echo "Please enter a valid email address."
   echo
-  echo "lamassu-bitcoind-install <email_address>"
+  echo "lamassu-core-install <email_address>"
   exit 2
 fi
 
@@ -31,7 +31,7 @@ if ! gpg --list-public-keys --with-colons $EMAIL_ADDRESS &>/dev/null; then
   echo
   echo "You will be presented with a list of your PGP keys,"
   echo "you should choose the one you want to use."
-  echo "When you are done, run lamassu-bitcoind-install again."
+  echo "When you are done, run lamassu-core-install again."
   echo
   exit 3
 fi
@@ -40,7 +40,7 @@ echo "Updating your system for bitcoind. Might take a few minutes."
 {
 apt-get update -y
 apt-get upgrade -y
-DEBIAN_FRONTEND=noninteractive apt-get install software-properties-common python-software-properties postfix mutt -y --force-yes
+DEBIAN_FRONTEND=noninteractive apt-get install software-properties-common python-software-properties postfix mutt -y
 } &>/dev/null
 
 # set up postfix for emailing backups
@@ -77,6 +77,7 @@ randPass=`< /dev/urandom tr -dc A-Za-z0-9 | head -c30`
 echo "rpcuser=$randUser" >> $config
 echo "rpcpassword=$randPass" >> $config
 echo "keypool=1000" >> $config
+echo "prune=4000" >> $config
 
 cat > "/etc/init/bitcoind.conf" <<EOF
 description "bitcoind"
@@ -106,7 +107,7 @@ crontab -
 echo
 echo "Installation was successful! bitcoind is now running."
 echo
-echo "It will take about 24 hours for bitcoind to load the entire blockchain."
+echo "It will take about 48 hours for bitcoind to load the entire blockchain."
 echo
 echo "Please check your email for your first wallet backup."
 echo

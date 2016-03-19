@@ -1,17 +1,16 @@
 {
   "name": "lamassu-scripts",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
-    "lamassu-install": "./bin/lamassu-install",
     "lamassu-passwd": "./bin/lamassu-passwd",
     "lamassu-useradd": "./bin/lamassu-useradd",
     "lamassu-set-locale": "./bin/lamassu-set-locale",
     "lamassu-unpair": "./bin/lamassu-unpair",
-    "lamassu-update": "./bin/lamassu-update",
     "lamassu-bitcoind-backup": "./bin/lamassu-bitcoind-backup",
-    "lamassu-bitcoind-install": "./bin/lamassu-bitcoind-install",
     "lamassu-bitcoind-enable": "./bin/lamassu-bitcoind-enable",
+    "lamassu-classic-install": "./bin/lamassu-classic-install",
+    "lamassu-core-install": "./bin/lamassu-core-install",
     "lamassu-disable-trading": "./bin/lamassu-disable-trading",
     "lamassu-update-config": "./bin/lamassu-update-config",
     "lamassu-transactions-csv": "./bin/lamassu-transactions-csv",
@@ -19,10 +18,11 @@
     "ssu-limits": "./bin/ssu-limits",
     "ssu-bills": "./bin/ssu-bills",
     "ssu-cartridges": "./bin/ssu-cartridges",
-    "ssu-remit": "./bin/ssu-remit",
-    "ssu-raqia": "./bin/ssu-raqia",
     "lamassu-bills-log": "./bin/lamassu-bills-log",
-    "lamassu-dispense-log": "./bin/lamassu-dispense-log"
+    "lamassu-dispense-log": "./bin/lamassu-dispense-log",
+    "lamassu-userdel": "./bin/lamassu-userdel",
+    "lamassu-tx-unencrypted": "./bin/lamassu-tx-unencrypted",
+    "lamassu-server-log": "./bin/lamassu-server-log"
   },
   "dependencies": {
     "async": "^0.9.0",

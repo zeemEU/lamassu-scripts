@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
+var LamassuConfig = require('lamassu-config');
+
+var psqlUrl;
+
+try {
+  psqlUrl = process.env.DATABASE_URL ||
+            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
+}
+catch (ex) {
+  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
+}
+
+var config = new LamassuConfig(psqlUrl);
+
+var username = process.argv[2];
+
+if (!username) {
+  console.error('Username is required: lamassu-userdel <username>');
+  console.log();
+  config.users(function (err, users) {
+    if (err) throw err;
+
+    var count = users.length;
+    if (count === 0)
+      console.log('You have no admin users');
+    else
+      console.log('Current admin users:');
+
+    for (var i = 0; i < count; i++) {
+      var user = users[i];
+      var name = user.name;
+      if (name)
+        console.log('name: %s, username: %s', name, user.username);
+      else
+        console.log(user.username);
+    }
+    process.exit(3);
+  });
+}
+
+if (username === '-a') {
+  config.userDelAll(function (err, count) {
+    if (err) {
+      console.error('Error: ' + err.message);
+      process.exit(1);
+    }
+    if (count === 0)
+      console.log('You have no admin users');
+    else if (count === 1)
+      console.log('Successfully deleted user');
+    else
+      console.log('Deleted all %d users', count);
+    config.end();
+    process.exit(0);
+  });
+}
+
+config.userDel(username, function (err, deleted) {
+  if (err) {
+    console.error('Error: ' + err.message);
+    process.exit(1);
+  }
+
+  if (!deleted) {
+    console.error('User not found');
+    process.exit(2);
+  }
+
+  console.log('User deleted');
+  config.end();
+});

@@ -3,12 +3,12 @@ set -e
 
 EMAIL_ADDRESS=$1
 if [ ! $# -eq 1 ]; then
-  echo "lamassu-transactions-csv <email_address>"
+  echo "lamassu-tx-unencrypted <email_address>"
   exit 1
 elif [[ ! $EMAIL_ADDRESS =~ .+@.+\..+ ]]; then
   echo "Please enter a valid email address."
   echo
-  echo "lamassu-transactions-csv <email_address>"
+  echo "lamassu-tx-unencrypted <email_address>"
   exit 1
 fi
 
@@ -18,11 +18,9 @@ then
   DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes mutt >/dev/null;
 fi
 
-TRANSACTIONS_FILE=/tmp/transactions-$HOSTNAME-$(date -u "+%Y-%m-%d_%H-%M-%S").csv
+TRANSACTIONS_FILE=/tmp/transactions-$(date -u "+%Y-%m-%d_%H-%M-%S").csv
 su - postgres -c "psql \"lamassu\" -Atc \"COPY transactions to '$TRANSACTIONS_FILE' WITH CSV HEADER\""
-gpg --batch --trust-model always -e -r $EMAIL_ADDRESS $TRANSACTIONS_FILE
-rm $TRANSACTIONS_FILE
 export EMAIL="Transactions Log <$EMAIL_ADDRESS>"
-echo "Attached is your encrypted transactions log." | mutt -s "Encrypted machine transactions from $HOSTNAME" -a $TRANSACTIONS_FILE.gpg -- $EMAIL_ADDRESS
-rm $TRANSACTIONS_FILE.gpg
+echo "Attached is your unencrypted transactions log." | mutt -s "Unencrypted machine transactions from $HOSTNAME" -a $TRANSACTIONS_FILE -- $EMAIL_ADDRESS
+rm $TRANSACTIONS_FILE
 echo "Transaction log sent to $EMAIL_ADDRESS. If it doesn't appear, check your spam folder."

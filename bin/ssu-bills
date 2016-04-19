@@ -38,8 +38,8 @@ function validateArgs() {
   if (argv.length === 3) name = argv.shift();
   top = argv.shift();
   bottom = argv.shift();
-  function valid(arg) { return _.isNumber(parseInt(arg, 10)) && arg > 0; }
-  if (!_.every([top, bottom], valid)) return bad('All values must be positive numbers');
+  function valid(arg) { return _.isNumber(parseInt(arg, 10)) && arg >= 0; }
+  if (!_.every([top, bottom], valid)) return bad('No negative values allowed');
   return true;
 }
 

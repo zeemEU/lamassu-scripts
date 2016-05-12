@@ -1,98 +1,144 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var DBH = require('dbh-pg');
-var P = require('bluebird');
-var using = P.using;
-var argv = process.argv.slice(2);
-var _ = require('lodash');
-var conString = require('../lib/db');
+var chalk = require('chalk')
+var DBH = require('dbh-pg')
+var P = require('bluebird')
+var using = P.using
+var argv = process.argv.slice(2)
+var _ = require('lodash')
+var conString = require('../lib/db')
 
-var off = argv.length === 1 && argv[0].toLowerCase() === 'off';
-var db = new DBH(conString);
+var off = argv.length === 1 && argv[0].toLowerCase() === 'off'
+var db = new DBH(conString)
 
-function usage() {
-  console.log('Set denominations of bill dispenser cartridges.');
-  console.log('Usage: ssu-cartridges [<top denomination> <bottom denomination> <virtual denomination>] [off]');
-  console.log('\nExample: ssu-cartridges 5 20 10');
-  console.log('Sets top cartridge for $5 bills, bottom cartridge for $20 bills.');
-  console.log('Also, provides an additional button for a user to select $10, which will dispense ');
-  console.log('two $5 bills. USD is given as an example, but values are based on configured currency.');
-  console.log('Virtual denomination must be a multiple of either the top or bottom denominations.\n');
-  console.log('To go back to one-way mode, run:');
-  console.log('ssu-cartridges off\n');
+var name = null
+var fingerprint
+var oldCounts
+
+function usage () {
+  console.log('Set denominations of bill dispenser cartridges.')
+  console.log('Usage: ssu-cartridges [<machine name>] [<top denomination> <bottom denomination> <virtual denomination>] [off]')
+  console.log('\nExample: ssu-cartridges 5 20 10')
+  console.log('Sets top cartridge for $5 bills, bottom cartridge for $20 bills.')
+  console.log('Also, provides an additional button for a user to select $10, which will dispense ')
+  console.log('two $5 bills. USD is given as an example, but values are based on configured currency.')
+  console.log('Virtual denomination must be a multiple of either the top or bottom denominations.\n')
+  console.log('To go back to one-way mode, run:')
+  console.log('ssu-cartridges off\n')
 }
 
-function printConfig(config, currency) {
-  var cartridges = config.exchanges.settings.cartridges;
-  function formatAmount(amount) { return amount.toString(10) + ' ' + currency; }
+function printConfig (config, currency) {
+  var cartridges = config.exchanges.settings.cartridges
+  function formatAmount (amount) { return amount.toString(10) + ' ' + currency }
 
-  if (!cartridges) return console.log('Server is in one-way mode.');
+  if (!cartridges) return console.log('Server is in one-way mode.')
 
-  var vCartridge = config.exchanges.settings.virtualCartridges[0];
+  var vCartridge = config.exchanges.settings.virtualCartridges[0]
   console.log('Top: %s, Bottom: %s, Virtual: %s',
-    formatAmount(cartridges[0]), formatAmount(cartridges[1]), formatAmount(vCartridge));
+    formatAmount(cartridges[0]), formatAmount(cartridges[1]), formatAmount(vCartridge))
 }
 
-function validateArgs() {
-  function bad(msg) { if (msg) console.log('Error: %s\n', msg); return false; }
-  if (off) return true;
-  if (argv.length !== 3) return bad();
-  var cartridges = [argv[0], argv[1]];
-  var vCartridges = [argv[2]];
-  var vCartridge = vCartridges[0];
-  var all = _.flatten([cartridges, vCartridges]);
-  function valid(arg) { return _.isNumber(parseInt(arg, 10)) && arg > 0; }
-  function isMultiple(c) { return vCartridge % c === 0; }
-  function isEqual(c) { return c === vCartridge; }
-  if (!_.every(all, valid)) return bad('All values must be positive numbers');
-  if (!_.some(cartridges, isMultiple)) return bad('Virtual cartridge must be a multiple of a cartridge.');
-  if (_.some(cartridges, isEqual)) return bad('Virtual cartridge amount must be different from cartridges.');
-  return true;
+function bail (msg) {
+  console.log(msg)
+  process.exit(2)
 }
 
-var badArgs = !validateArgs();
-if (badArgs) usage();
+function validateArgs () {
+  function bad (msg) { if (msg) console.log('Error: %s\n', msg); return false }
+  if (off) return true
+  if (argv.length === 4) name = argv.shift()
+  if (argv.length !== 3) return bad()
+  var cartridges = [argv[0], argv[1]]
+  var vCartridges = [argv[2]]
+  var vCartridge = vCartridges[0]
+  var all = _.flatten([cartridges, vCartridges])
+  function valid (arg) { return _.isNumber(parseInt(arg, 10)) && arg > 0 }
+  function isMultiple (c) { return vCartridge % c === 0 }
+  function isEqual (c) { return c === vCartridge }
+  if (!_.every(all, valid)) return bad('All values must be positive numbers')
+  if (!_.some(cartridges, isMultiple)) return bad('Virtual cartridge must be a multiple of a cartridge.')
+  if (_.some(cartridges, isEqual)) return bad('Virtual cartridge amount must be different from cartridges.')
+  return true
+}
 
-using(db.conn(), function(con) {
-  var currency;
+var badArgs = !validateArgs()
+if (badArgs) usage()
+
+using(db.conn(), function (con) {
+  var currency
 
   return con
-  .fetchOne('SELECT data FROM user_config WHERE type=$1', ['unit'])
-  .then(function(res) {
-    currency = res.data.brain.locale.currency;
-    return this.fetchOne('SELECT data FROM user_config WHERE type=$1', ['exchanges']);
+  .fetchAll('SELECT name, fingerprint FROM devices')
+  .then(function (rows) {
+    if (rows.length === 0) bail('No machines are paired yet.')
+    if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.')
+    if (!name) name = rows[0].name
+    var chosen = _.find(rows, {name: name})
+    if (!chosen) bail('No such machine: ' + name)
+    fingerprint = chosen.fingerprint
+    return this.fetchOne('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC', [fingerprint])
   })
-  .then(function(res) {
-    var config = res.data;
-    var cartridges, vCartridge;
-
-    if (badArgs) console.log('Current settings:');
-    else console.log('Previous settings:');
-
-    printConfig(config, currency);
-    if (badArgs) process.exit(1);
-
-    if (off) {
-      cartridges = null;
-      vCartridge = null;
-    } else {
-      cartridges = [argv[0], argv[1]];
-      vCartridge = [argv[2]];
+  .then(function (res) {
+    var rec = {
+      device_fingerprint: fingerprint,
+      count1: '0',
+      count2: '0',
+      refill: true,
+      dispense1: '0',
+      reject1: '0',
+      dispense2: '0',
+      reject2: '0'
     }
 
-    config.exchanges.settings.cartridges = cartridges;
-    config.exchanges.settings.virtualCartridges = vCartridge;
-    return this.exec('UPDATE user_config SET data=$1 WHERE type=$2', [config, 'exchanges'])
-    .then(function() {
-      console.log('\nNew settings:');
-      printConfig(config, currency);
-      process.exit(0);
-    });
+    oldCounts = [res.count1, res.count2]
+    return this.insert('dispenses', rec)
   })
-  .catch(function(err) {
-    console.log(err.message);
-    process.exit(2);
-  });
-});
+  .then(function () {
+    return this.fetchOne('SELECT data FROM user_config WHERE type=$1', ['unit'])
+  })
+  .then(function (res) {
+    currency = res.data.brain.locale.currency
+    return this.fetchOne('SELECT data FROM user_config WHERE type=$1', ['exchanges'])
+  })
+  .then(function (res) {
+    var config = res.data
+    var cartridges, vCartridge
+
+    if (badArgs) console.log('Current settings:')
+    else console.log('Previous settings:')
+
+    printConfig(config, currency)
+    if (badArgs) process.exit(1)
+
+    if (off) {
+      cartridges = null
+      vCartridge = null
+    } else {
+      cartridges = [argv[0], argv[1]]
+      vCartridge = [argv[2]]
+    }
+
+    config.exchanges.settings.cartridges = cartridges
+    config.exchanges.settings.virtualCartridges = vCartridge
+    return this.exec('UPDATE user_config SET data=$1 WHERE type=$2', [config, 'exchanges'])
+    .then(function () {
+      return this.exec('NOTIFY "config_update"')
+    })
+    .then(function () {
+      console.log('\nNew settings:')
+      printConfig(config, currency)
+      if (oldCounts) {
+        console.log('\n' + chalk.bold("We've reset your bill counts to zero.") + ' Please update them with ssu-bills.')
+        console.log('\nPrevious bill counts:')
+        console.log('Top: %d, Bottom: %d', oldCounts[0], oldCounts[1])
+      }
+      process.exit(0)
+    })
+  })
+  .catch(function (err) {
+    console.log(err.message)
+    process.exit(2)
+  })
+})

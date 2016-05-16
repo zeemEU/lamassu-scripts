@@ -92,7 +92,7 @@ using(db.conn(), function (con) {
       reject2: '0'
     }
 
-    oldCounts = [res.count1, res.count2]
+    oldCounts = res ? [res.count1, res.count2] : [0, 0]
     return this.insert('dispenses', rec)
   })
   .then(function () {

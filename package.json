@@ -1,6 +1,6 @@
 {
   "name": "lamassu-scripts",
-  "version": "0.2.23",
+  "version": "0.2.24",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
     "lamassu-passwd": "./bin/lamassu-passwd",

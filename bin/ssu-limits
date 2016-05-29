@@ -1,88 +1,92 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var pg = require('pg');
-var client = new pg.Client(require('../lib/db'));
-var argv = require('minimist')(process.argv.slice(2));
-var _ = require('lodash');
+var pg = require('pg')
+var client = new pg.Client(require('../lib/db'))
+var argv = require('minimist')(process.argv.slice(2))
+var _ = require('lodash')
 
-function usage() {
-  console.log('Sets limits for lamassu-server');
-  console.log('Usage: ssu-limits [-a <accept>] [-d <dispense>] [-z <zero-conf>] [-i <id verify>]');
-  console.log('\nExamples:\nssu-limits -z 200 -d 500');
-  console.log('Dispenses up to $500 per transaction, accepts zero confirmations for $200 or less.');
-  console.log('\nssu-limits -a 1000');
-  console.log('Accepts up to $1,000 per transaction for Bitcoin purchases.');
-  console.log('\nssu-limits -i 0');
-  console.log('Disables ID verification.');
-  console.log('\nNOTE: All amounts are in configured currency, not necessarily USD.');
+function usage () {
+  console.log('Sets limits for lamassu-server')
+  console.log('Usage: ssu-limits [-a <accept>] [-d <dispense>] [-z <zero-conf>] [-i <id verify>]')
+  console.log('\nExamples:\nssu-limits -z 200 -d 500')
+  console.log('Dispenses up to $500 per transaction, accepts zero confirmations for $200 or less.')
+  console.log('\nssu-limits -a 1000')
+  console.log('Accepts up to $1,000 per transaction for Bitcoin purchases.')
+  console.log('\nssu-limits -i 0')
+  console.log('Disables ID verification.')
+  console.log('\nNOTE: All amounts are in configured currency, not necessarily USD.')
 }
 
-function bail(msg) {
-  console.log(msg);
-  client.end();
-  process.exit(2);
+function bail (msg) {
+  console.log(msg)
+  client.end()
+  process.exit(2)
 }
 
-function formatInt(n) {
-  if (n) return n.toString(10);
-  return 'Not set';
+function formatInt (n) {
+  if (n) return n.toString(10)
+  return 'Not set'
 }
 
-function printConfig(config) {
-  console.log('Accept limit: %s', formatInt(config.exchanges.settings.compliance.maximum.limit));
-  console.log('Dispense limit: %s', formatInt(config.exchanges.settings.fiatTxLimit));
-  console.log('Zero confirmation threshold: %s', formatInt(config.exchanges.settings.zeroConfLimit));
-  if (config.exchanges.settings.compliance.iVerificationEnabled)
-    console.log('ID verification threshold: %s', formatInt(config.exchanges.settings.compliance.iVerificationLimit));
-  else
-    console.log('ID verification disabled');
+function printConfig (config) {
+  console.log('Accept limit: %s', formatInt(config.exchanges.settings.compliance.maximum.limit))
+  console.log('Dispense limit: %s', formatInt(config.exchanges.settings.fiatTxLimit))
+  console.log('Zero confirmation threshold: %s', formatInt(config.exchanges.settings.zeroConfLimit))
+  if (config.exchanges.settings.compliance.iVerificationEnabled) {
+    console.log('ID verification threshold: %s', formatInt(config.exchanges.settings.compliance.iVerificationLimit))
+  } else {
+    console.log('ID verification disabled')
+  }
 }
 
-client.connect(function(err) {
-  if (err) return bail(err);
+client.connect(function (err) {
+  if (err) return bail(err)
 
-  var sql = 'SELECT data from user_config WHERE type=$1';
-  client.query(sql, ['exchanges'], function(err, res) {
-    if (err) return bail(err);
-    var row = _.first(res.rows);
-    if (!row) return bail('No configuration present in database.');
-    var config = row.data;
+  var sql = 'SELECT data from user_config WHERE type=$1'
+  client.query(sql, ['exchanges'], function (err, res) {
+    if (err) return bail(err)
+    var row = _.first(res.rows)
+    if (!row) return bail('No configuration present in database.')
+    var config = row.data
 
-    var noArgs = _.isEmpty(_.intersection(['a', 'd', 'z', 'i'], _.keys(argv)));
-    if (noArgs) usage();
-    console.log('\nPrevious configuration:');
-    printConfig(config);
-    if (noArgs) return client.end();
+    var noArgs = _.isEmpty(_.intersection(['a', 'd', 'z', 'i'], _.keys(argv)))
+    if (noArgs) usage()
+    console.log('\nPrevious configuration:')
+    printConfig(config)
+    if (noArgs) return client.end()
 
     if (argv.a) {
-      config.exchanges.settings.compliance.maximum.limit = argv.a;
+      config.exchanges.settings.compliance.maximum.limit = argv.a
     }
 
     if (argv.i) {
-      config.exchanges.settings.compliance.iVerificationEnabled = true;
-      config.exchanges.settings.compliance.iVerificationLimit = argv.i;
+      config.exchanges.settings.compliance.iVerificationEnabled = true
+      config.exchanges.settings.compliance.iVerificationLimit = argv.i
     }
 
-    if (argv.i == 0) {
-      config.exchanges.settings.compliance.iVerificationEnabled = false;
+    if (argv.i === 0) {
+      config.exchanges.settings.compliance.iVerificationEnabled = false
     }
 
     if (argv.d) {
-      config.exchanges.settings.fiatTxLimit = argv.d;
+      config.exchanges.settings.fiatTxLimit = argv.d
     }
 
     if (argv.z) {
-      config.exchanges.settings.zeroConfLimit = argv.z;
+      config.exchanges.settings.zeroConfLimit = argv.z
     }
 
-    var updateSql = 'UPDATE user_config SET data=$1 WHERE type=$2';
-    client.query(updateSql, [config, 'exchanges'], function(err) {
-      if (err) return bail(err);
-      client.end();
-      console.log('\nNew configuration:');
-      printConfig(config);
-    });
-  });
-});
+    var updateSql = 'UPDATE user_config SET data=$1 WHERE type=$2'
+    client.query(updateSql, [config, 'exchanges'], function (err) {
+      if (err) return bail(err)
+      client.query('NOTIFY "config_update"', function (err) {
+        if (err) return bail(err)
+        client.end()
+        console.log('\nNew configuration:')
+        printConfig(config)
+      })
+    })
+  })
+})

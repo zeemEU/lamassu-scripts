@@ -29,7 +29,7 @@
     "bluebird": "^2.6.2",
     "chalk": "^1.0.0",
     "dbh-pg": "^2.0.0",
-    "lamassu-config": "~0.4.1",
+    "lamassu-config": "^0.4.4",
     "lodash": "~2.4.1",
     "minimist": "^1.1.0",
     "moniker": "^0.1.2",

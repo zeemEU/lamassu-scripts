@@ -45,7 +45,7 @@ var badArgs = !validateArgs()
 if (badArgs) usage()
 
 if (noArgs) {
-  db.many('SELECT name, fingerprint FROM devices')
+  db.manyOrNone('SELECT name, fingerprint FROM devices')
   .then(function (rows) {
     if (rows.length === 0) bail('No machines are paired yet.')
     var sql = 'SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC limit 1'
@@ -67,7 +67,7 @@ if (noArgs) {
     process.exit(3)
   })
 } else {
-  db.many('SELECT name, fingerprint FROM devices')
+  db.manyOrNone('SELECT name, fingerprint FROM devices')
   .then(function (rows) {
     if (rows.length === 0) bail('No machines are paired yet.')
     if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.')
@@ -75,23 +75,19 @@ if (noArgs) {
     var chosen = _.find(rows, {name: name})
     if (!chosen) bail('No such machine: ' + name)
     fingerprint = chosen.fingerprint
-    return db.one('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC', [fingerprint])
+    return db.one('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC limit 1', [fingerprint])
   })
   .then(function (row) {
     console.log('\nPrevious count:')
     printConfig(row, name)
     if (badArgs) process.exit(5)
-    var rec = {
-      device_fingerprint: fingerprint,
-      count1: top,
-      count2: bottom,
-      refill: true,
-      dispense1: '0',
-      reject1: '0',
-      dispense2: '0',
-      reject2: '0'
-    }
-    return this.insert('dispenses', rec)
+
+    var insertSql = 'insert into dispenses ' +
+      '(device_fingerprint, count1, count2, refill, dispense1, reject1, dispense2, reject2) ' +
+      'values ($1, $2, $3, $4, $5, $6, $7, $8)'
+    var insertValues = [fingerprint, top, bottom, true, 0, 0, 0, 0]
+
+    return db.none(insertSql, insertValues)
   })
   .then(function () {
     console.log('\nNew count:')

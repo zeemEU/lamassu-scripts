@@ -66,7 +66,7 @@ if (badArgs) usage()
 
 var currency
 
-db.many('SELECT name, fingerprint FROM devices')
+db.manyOrNone('SELECT name, fingerprint FROM devices')
 .then(function (rows) {
   if (rows.length === 0) bail('No machines are paired yet.')
   if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.')

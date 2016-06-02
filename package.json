@@ -11,6 +11,7 @@
     "lamassu-bitcoind-enable": "./bin/lamassu-bitcoind-enable",
     "lamassu-classic-install": "./bin/lamassu-classic-install",
     "lamassu-core-install": "./bin/lamassu-core-install",
+    "lamassu-geth-backup": "./bin/lamassu-geth-backup",
     "lamassu-disable-trading": "./bin/lamassu-disable-trading",
     "lamassu-update-config": "./bin/lamassu-update-config",
     "lamassu-transactions-csv": "./bin/lamassu-transactions-csv",

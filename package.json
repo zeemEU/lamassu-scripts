@@ -19,6 +19,7 @@
     "ssu-limits": "./bin/ssu-limits",
     "ssu-bills": "./bin/ssu-bills",
     "ssu-cartridges": "./bin/ssu-cartridges",
+    "ssu-fix-db": "./bin/ssu-fix-db",
     "lamassu-bills-log": "./bin/lamassu-bills-log",
     "lamassu-dispense-log": "./bin/lamassu-dispense-log",
     "lamassu-userdel": "./bin/lamassu-userdel",

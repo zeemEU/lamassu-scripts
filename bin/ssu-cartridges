@@ -2,16 +2,14 @@
 
 'use strict'
 
+require('es6-promise').polyfill()
 var chalk = require('chalk')
-var DBH = require('dbh-pg')
-var P = require('bluebird')
-var using = P.using
 var argv = process.argv.slice(2)
 var _ = require('lodash')
 var conString = require('../lib/db')
+var db = require('pg-promise')({})(conString)
 
 var off = argv.length === 1 && argv[0].toLowerCase() === 'off'
-var db = new DBH(conString)
 
 var name = null
 var fingerprint
@@ -66,79 +64,69 @@ function validateArgs () {
 var badArgs = !validateArgs()
 if (badArgs) usage()
 
-using(db.conn(), function (con) {
-  var currency
+var currency
 
-  return con
-  .fetchAll('SELECT name, fingerprint FROM devices')
-  .then(function (rows) {
-    if (rows.length === 0) bail('No machines are paired yet.')
-    if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.')
-    if (!name) name = rows[0].name
-    var chosen = _.find(rows, {name: name})
-    if (!chosen) bail('No such machine: ' + name)
-    fingerprint = chosen.fingerprint
-    return this.fetchOne('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC', [fingerprint])
-  })
-  .then(function (res) {
-    var rec = {
-      device_fingerprint: fingerprint,
-      count1: '0',
-      count2: '0',
-      refill: true,
-      dispense1: '0',
-      reject1: '0',
-      dispense2: '0',
-      reject2: '0'
-    }
+db.many('SELECT name, fingerprint FROM devices')
+.then(function (rows) {
+  if (rows.length === 0) bail('No machines are paired yet.')
+  if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.')
+  if (!name) name = rows[0].name
+  var chosen = _.find(rows, {name: name})
+  if (!chosen) bail('No such machine: ' + name)
+  fingerprint = chosen.fingerprint
+  return db.oneOrNone('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC limit 1', [fingerprint])
+})
+.then(function (res) {
+  oldCounts = res ? [res.count1, res.count2] : [0, 0]
+  var insertSql = 'insert into dispenses ' +
+    '(device_fingerprint, count1, count2, refill, dispense1, reject1, dispense2, reject2) ' +
+    'values ($1, $2, $3, $4, $5, $6, $7, $8)'
+  var insertValues = [fingerprint, 0, 0, true, 0, 0, 0, 0]
+  return db.none(insertSql, insertValues)
+})
+.then(function () {
+  return db.one('SELECT data FROM user_config WHERE type=$1', ['unit'])
+})
+.then(function (res) {
+  currency = res.data.brain.locale.currency
+  return db.one('SELECT data FROM user_config WHERE type=$1', ['exchanges'])
+})
+.then(function (res) {
+  var config = res.data
+  var cartridges, vCartridge
 
-    oldCounts = res ? [res.count1, res.count2] : [0, 0]
-    return this.insert('dispenses', rec)
+  if (badArgs) console.log('Current settings:')
+  else console.log('Previous settings:')
+
+  printConfig(config, currency)
+  if (badArgs) process.exit(1)
+
+  if (off) {
+    cartridges = null
+    vCartridge = null
+  } else {
+    cartridges = [argv[0], argv[1]]
+    vCartridge = [argv[2]]
+  }
+
+  config.exchanges.settings.cartridges = cartridges
+  config.exchanges.settings.virtualCartridges = vCartridge
+  return db.none('UPDATE user_config SET data=$1 WHERE type=$2', [config, 'exchanges'])
+  .then(function () {
+    return db.none('NOTIFY "config_update"')
   })
   .then(function () {
-    return this.fetchOne('SELECT data FROM user_config WHERE type=$1', ['unit'])
-  })
-  .then(function (res) {
-    currency = res.data.brain.locale.currency
-    return this.fetchOne('SELECT data FROM user_config WHERE type=$1', ['exchanges'])
-  })
-  .then(function (res) {
-    var config = res.data
-    var cartridges, vCartridge
-
-    if (badArgs) console.log('Current settings:')
-    else console.log('Previous settings:')
-
+    console.log('\nNew settings:')
     printConfig(config, currency)
-    if (badArgs) process.exit(1)
-
-    if (off) {
-      cartridges = null
-      vCartridge = null
-    } else {
-      cartridges = [argv[0], argv[1]]
-      vCartridge = [argv[2]]
+    if (oldCounts) {
+      console.log('\n' + chalk.bold("We've reset your bill counts to zero.") + ' Please update them with ssu-bills.')
+      console.log('\nPrevious bill counts:')
+      console.log('Top: %d, Bottom: %d', oldCounts[0], oldCounts[1])
     }
-
-    config.exchanges.settings.cartridges = cartridges
-    config.exchanges.settings.virtualCartridges = vCartridge
-    return this.exec('UPDATE user_config SET data=$1 WHERE type=$2', [config, 'exchanges'])
-    .then(function () {
-      return this.exec('NOTIFY "config_update"')
-    })
-    .then(function () {
-      console.log('\nNew settings:')
-      printConfig(config, currency)
-      if (oldCounts) {
-        console.log('\n' + chalk.bold("We've reset your bill counts to zero.") + ' Please update them with ssu-bills.')
-        console.log('\nPrevious bill counts:')
-        console.log('Top: %d, Bottom: %d', oldCounts[0], oldCounts[1])
-      }
-      process.exit(0)
-    })
+    process.exit(0)
   })
-  .catch(function (err) {
-    console.log(err.message)
-    process.exit(2)
-  })
+})
+.catch(function (err) {
+  console.log(err.message)
+  process.exit(2)
 })

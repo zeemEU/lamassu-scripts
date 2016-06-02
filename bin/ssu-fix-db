@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+'use strict'
+
+var pg = require('pg')
+var client = new pg.Client(require('../lib/db'))
+var _ = require('lodash')
+
+function bail (msg) {
+  console.log(msg)
+  client.end()
+  process.exit(2)
+}
+
+function succeed (msg) {
+  console.log(msg)
+  client.end()
+  process.exit(0)
+}
+
+client.connect(function (err) {
+  if (err) return bail(err)
+
+  var sql = 'SELECT data from user_config WHERE type=$1'
+  client.query(sql, ['unit'], function (err, res) {
+    if (err) return bail(err)
+
+    var row = _.first(res.rows)
+    if (!row) return succeed('Database looks good.')
+
+    var config = row.data
+
+    if (!config.exchanges) return succeed('Database looks good.')
+
+    config = {brain: config.brain}
+
+    var updateSql = 'UPDATE user_config SET data=$1 WHERE type=$2'
+    client.query(updateSql, [config, 'unit'], function (err) {
+      if (err) return bail(err)
+
+      console.log('Database was fixed.')
+
+      client.query('NOTIFY "config_update"', function (err) {
+        if (err) return bail(err)
+        client.end()
+      })
+    })
+  })
+})

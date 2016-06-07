@@ -22,7 +22,7 @@ prune=4000
 daemon=0
 EOF
 
-BIN=$(npm bin)
+BIN=$(npm -g bin)
 BACKUP_CRON="@daily $BIN/backup-bitcoind > /dev/null"
 echo $BACKUP_CRON | crontab -
 

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-BIN=$(npm bin)
+BIN=$(npm -g bin)
 LOG_FILE=/tmp/install.log
 
-SEED=$(cat /opt/apps/seeds/seed.txt)
-PASS_FILE=/opt/apps/seeds/geth.txt
+SEEDS_DIR=/root/seeds
+SEED_FILE=$SEEDS_DIR/seed.txt
+SEED=$(cat $SEED_FILE)
+PASS_FILE=$SEEDS_DIR/geth.txt
 $BIN/hkdf geth-pw $SEED > $PASS_FILE
 ACCOUNT_STR=$(geth --password $PASS_FILE account new)
 ACCOUNT=$(echo $ACCOUNT_STR | grep -o '{.*}' | tr -d '{}')

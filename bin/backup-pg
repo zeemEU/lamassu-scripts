@@ -1,0 +1,7 @@
+DAYS_TO_KEEP=3
+DATE=$(date --utc +%F_%H-%M)
+BACKUP_DIR=/opt/backups/postgresql
+BACKUP_FILE=$BACKUP_DIR/backup-$DATE.sql.gz
+
+pg_dump lamassu | gzip > $BACKUP_FILE
+find $BACKUP_DIR -maxdepth 1 -mtime +$DAYS_TO_KEEP -exec rm -f '{}' ';'

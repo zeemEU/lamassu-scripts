@@ -24,7 +24,11 @@
     "lamassu-dispense-log": "./bin/lamassu-dispense-log",
     "lamassu-userdel": "./bin/lamassu-userdel",
     "lamassu-tx-unencrypted": "./bin/lamassu-tx-unencrypted",
-    "lamassu-server-log": "./bin/lamassu-server-log"
+    "lamassu-server-log": "./bin/lamassu-server-log",
+    "backup-pg": "./bin/backup-pg",
+    "backup-bitcoind": "./bin/backup-bitcoind",
+    "ssu-bitcoind": "./bin/ssu-bitcoind",
+    "ssu-geth": "./bin/ssu-geth"
   },
   "dependencies": {
     "async": "^0.9.0",

@@ -21,14 +21,12 @@ SEED_FILE=$SEEDS_DIR/seed.txt
 SEED=$(cat $SEED_FILE)
 export PASS_FILE=$SEEDS_DIR/geth.txt
 $BIN/hkdf geth-pw $SEED > $PASS_FILE
-ACCOUNT_STR=$(geth --password $PASS_FILE account new)
+ACCOUNT_STR=$(su lamassu -c "geth --password $PASS_FILE account new")
 export ACCOUNT=$(echo $ACCOUNT_STR | grep -o '{.*}' | tr -d '{}')
 
-su -l lamassu <<EOF
-  cd ~
-
-  pm2 start geth -- --fast --rpc --unlock $ACCOUNT --password $PASS_FILE >> $LOG_FILE 2>&1
-  pm2 save
+su lamassu <<EOF
+  $BIN/pm2 start geth -- --fast --rpc --unlock $ACCOUNT --password $PASS_FILE >> $LOG_FILE 2>&1
+  $BIN/pm2 save
 
   echo "Success. Your main account is 0x$ACCOUNT."
 EOF

@@ -1,7 +1,6 @@
 DAYS_TO_KEEP=3
 DATE=$(date --utc +%F_%H-%M)
 BACKUP_DIR=/opt/backups/bitcoind
-mkdir -p $BACKUP_DIR
 BACKUP_FILE=$BACKUP_DIR/backup-$DATE.dat
 
 bitcoin-cli backupwallet $BACKUP_FILE

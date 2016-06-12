@@ -27,6 +27,8 @@ BACKUP_CRON="@daily $BIN/backup-bitcoind > /dev/null"
 echo $BACKUP_CRON | crontab -
 
 ufw allow 8333/tcp >> $LOG_FILE 2>&1
+
 pm2 start bitcoind >> $LOG_FILE 2>&1
+pm2 save
 
 echo "Success."

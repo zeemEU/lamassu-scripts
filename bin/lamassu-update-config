@@ -3,18 +3,9 @@
 
 var fs = require('fs');
 var _ = require('lodash');
+var psqlUrl = require('../lib/db')
 
 var LamassuConfig = require('lamassu-config');
-
-var psqlUrl;
-
-try {
-  psqlUrl = process.env.DATABASE_URL ||
-            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
-}
-catch (ex) {
-  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
-}
 
 var config = new LamassuConfig(psqlUrl);
 var updateConfigPath = process.argv[2];

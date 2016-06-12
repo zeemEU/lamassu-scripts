@@ -13,6 +13,8 @@ ACCOUNT_STR=$(geth --password $PASS_FILE account new)
 ACCOUNT=$(echo $ACCOUNT_STR | grep -o '{.*}' | tr -d '{}')
 
 ufw allow 30303/tcp >> $LOG_FILE 2>&1 # Ethereum
+
 pm2 start geth -- --fast --rpc --unlock $ACCOUNT --password $PASS_FILE >> $LOG_FILE 2>&1
+pm2 save
 
 echo "Success. Your main account is 0x$ACCOUNT."

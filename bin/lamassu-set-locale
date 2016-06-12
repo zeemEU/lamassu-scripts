@@ -1,22 +1,14 @@
 #!/usr/bin/env node
 'use strict';
-var fs = require('fs');
+
 var LamassuConfig = require('lamassu-config');
-var psqlUrl;
+var psqlUrl = require('../lib/db')
 
 var _currentConfig = null;
 var _currencyWasSet = false;
 var _primaryWasSet = false;
 var _countryWasSet = false;
 var _locale = null;
-
-try {
-  psqlUrl = process.env.DATABASE_URL ||
-            JSON.parse(fs.readFileSync('/etc/lamassu.json')).postgresql;
-}
-catch (ex) {
-  psqlUrl = 'psql://lamassu:lamassu@localhost/lamassu';
-}
 
 var config = new LamassuConfig(psqlUrl);
 

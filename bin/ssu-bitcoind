@@ -7,21 +7,15 @@ if [ "$(whoami)" != "root" ]; then
 fi
 
 export LOG_FILE=/tmp/install.log
-touch $LOG_FILE
-chmod 666 $LOG_FILE
 
-BACKUP_DIR=/opt/backups/bitcoind
+BACKUP_DIR=$HOME/backups/bitcoind
 mkdir -p $BACKUP_DIR
-chown lamassu $BACKUP_DIR
-chmod 755 $BACKUP_DIR
 
 ufw allow 8333/tcp >> $LOG_FILE 2>&1
 
-LAMASSU_HOME=~lamassu
-CONFIG_DIR=$LAMASSU_HOME/.bitcoin
+CONFIG_DIR=$HOME/.bitcoin
 CONFIG=$CONFIG_DIR/bitcoin.conf
 mkdir -p $CONFIG_DIR
-chown lamassu $CONFIG_DIR
 PASS=$(openssl rand -hex 32)
 
 cat > $CONFIG <<EOF
@@ -33,15 +27,12 @@ keypool=10000
 prune=4000
 daemon=0
 EOF
-chown lamassu:lamassu $CONFIG
 
-BIN=$(su lamassu -c "npm bin")
+pm2 start bitcoind >> $LOG_FILE 2>&1
+pm2 save >> $LOG_FILE 2>&1
+
+BIN=$(npm bin)
 BACKUP_CRON="@daily $BIN/backup-bitcoind > /dev/null"
-
-su lamassu <<EOF
-  echo $BACKUP_CRON | crontab -
-  $BIN/pm2 start bitcoind >> $LOG_FILE 2>&1
-  $BIN/pm2 save
-EOF
+echo $BACKUP_CRON | crontab -
 
 echo "Success."

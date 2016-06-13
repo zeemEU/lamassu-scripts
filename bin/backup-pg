@@ -8,7 +8,7 @@ fi
 
 DAYS_TO_KEEP=3
 DATE=$(date --utc +%F_%H-%M)
-BACKUP_DIR=/opt/backups/postgresql
+BACKUP_DIR=$HOME/backups/postgresql
 BACKUP_FILE=$BACKUP_DIR/backup-$DATE.sql.gz
 
 su postgres -c pg_dump -- lamassu | gzip > $BACKUP_FILE

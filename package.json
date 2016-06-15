@@ -34,7 +34,7 @@
     "async": "^0.9.0",
     "chalk": "^1.0.0",
     "es6-promise": "^3.2.1",
-    "lamassu-config": "^0.4.4",
+    "lamassu-config": "lamassu/lamassu-config",
     "lodash": "~2.4.1",
     "minimist": "^1.1.0",
     "moniker": "^0.1.2",

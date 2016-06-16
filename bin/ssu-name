@@ -1,42 +1,51 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-var moniker = require('moniker');
-var pad = require('pad');
-var async = require('async');
-var pg = require('pg');
-var client = new pg.Client(require('../lib/db'));
+var moniker = require('moniker')
+var pad = require('pad')
+var async = require('async')
+var pg = require('pg')
+var client = new pg.Client(require('../lib/db'))
 
-var newRows = [];
+var newRows = []
 
-function updateName(row, cb) {
-  var name = row.name || moniker.choose();
-  var fingerprint = row.fingerprint;
-  newRows.push({name: name, fingerprint: fingerprint});
-  if (row.name) return cb();
+function updateName (row, cb) {
+  var name = row.name || moniker.choose()
+  var fingerprint = row.fingerprint
+  newRows.push({name: name, fingerprint: fingerprint})
+  if (row.name) return cb()
   client.query('UPDATE devices SET name=$1 WHERE fingerprint=$2',
-    [name, fingerprint], function(err) {
-      cb(err);
-  });
+    [name, fingerprint], function (err) {
+      cb(err)
+    })
 }
 
-client.connect(function(err) {
-  if (err) return console.log(err);
-  var sql = 'SELECT * FROM devices ORDER BY id';
-  client.query(sql, function(err, res) {
-    var rows = res.rows;
-    if (rows.length === 0) return 'No paired devices.';
-    async.each(rows, updateName, function(err) {
-      client.end();
-      if (err) return console.log(err);
+client.connect(function (err) {
+  if (err) return console.log(err)
+  var sql = 'SELECT * FROM devices ORDER BY id'
+  client.query(sql, function (err, res) {
+    if (err) {
+      console.log('Error: %s', err.stack)
+      process.exit(1)
+    }
+
+    var rows = res.rows
+    if (rows.length === 0) {
+      console.log('No paired devices.')
+      process.exit(0)
+    }
+
+    async.each(rows, updateName, function (err) {
+      client.end()
+      if (err) return console.log(err)
 
       for (var i = 0; i < newRows.length; i++) {
-        var row = newRows[i];
-        var fp = row.fingerprint;
-        var name = row.name;
-        console.log('%s %s', pad(name, 24), fp);
+        var row = newRows[i]
+        var fp = row.fingerprint
+        var name = row.name
+        console.log('%s %s', pad(name, 24), fp)
       }
-    });
-  });
-});
+    })
+  })
+})

@@ -28,10 +28,12 @@
     "backup-pg": "./bin/backup-pg",
     "backup-bitcoind": "./bin/backup-bitcoind",
     "ssu-bitcoind": "./bin/ssu-bitcoind",
-    "ssu-geth": "./bin/ssu-geth"
+    "ssu-geth": "./bin/ssu-geth",
+    "ssu-mnemonic": ".bin/ssu-mnemonic"
   },
   "dependencies": {
     "async": "^0.9.0",
+    "bip39": "^2.2.0",
     "chalk": "^1.0.0",
     "es6-promise": "^3.2.1",
     "lamassu-config": "lamassu/lamassu-config",

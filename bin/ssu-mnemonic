@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+
+const path = require('path')
+const os = require('os')
+const fs = require('fs')
+const bip39 = require('bip39')
+const chalk = require('chalk')
+
+var options
+
+try {
+  const configPath = path.resolve(os.homedir(), '.lamassu', 'lamassu.json')
+  options = JSON.parse(fs.readFileSync(configPath))
+} catch (err) {
+  console.log('Missing configuration file -- exiting.')
+  process.exit(1)
+}
+
+const entropyPath = options.seedPath
+var entropy
+
+try {
+  entropy = fs.readFileSync(entropyPath, 'utf8').trim()
+} catch (err) {
+  console.log(err)
+  console.log('Could not read seed file: %s', entropyPath)
+  process.exit(2)
+}
+
+console.log('Your master seed is: \n')
+const mnemonic = bip39.entropyToMnemonic(entropy)
+const words = mnemonic.split(' ')
+console.log(words.slice(0, 6).join(' '))
+console.log(words.slice(6, 12).join(' '))
+console.log(words.slice(12, 18).join(' '))
+console.log(words.slice(18).join(' '))
+console.log('\nWrite it down on a piece of paper and keep it in a safe place.\n')
+console.log(chalk.bold('WARNING') + ': Anybody who sees this phrase can steal your coins.')

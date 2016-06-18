@@ -29,7 +29,7 @@
     "backup-bitcoind": "./bin/backup-bitcoind",
     "ssu-bitcoind": "./bin/ssu-bitcoind",
     "ssu-geth": "./bin/ssu-geth",
-    "ssu-mnemonic": ".bin/ssu-mnemonic"
+    "ssu-mnemonic": "./bin/ssu-mnemonic"
   },
   "dependencies": {
     "async": "^0.9.0",

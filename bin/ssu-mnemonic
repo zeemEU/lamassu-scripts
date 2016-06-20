@@ -5,6 +5,7 @@ const os = require('os')
 const fs = require('fs')
 const bip39 = require('bip39')
 const chalk = require('chalk')
+const inquirer = require('inquirer')
 
 var options
 
@@ -19,20 +20,43 @@ try {
 const entropyPath = options.seedPath
 var entropy
 
-try {
-  entropy = fs.readFileSync(entropyPath, 'utf8').trim()
-} catch (err) {
-  console.log(err)
-  console.log('Could not read seed file: %s', entropyPath)
-  process.exit(2)
+function newMnemonic () {
+  const questions = [
+    {
+      type: 'input',
+      name: 'mnemonic',
+      message: 'Enter your mnemonic phrase:',
+      filter: val => val.trim(),
+      validate: val => {
+        return bip39.validateMnemonic(val)
+        ? true
+        : 'Please enter a valid mnemonic.'
+      }
+    }
+  ]
+
+  return inquirer.prompt(questions).then(result => saveMnemonic(result.mnemonic))
 }
 
-console.log('Your master seed is: \n')
-const mnemonic = bip39.entropyToMnemonic(entropy)
-const words = mnemonic.split(' ')
-console.log(words.slice(0, 6).join(' '))
-console.log(words.slice(6, 12).join(' '))
-console.log(words.slice(12, 18).join(' '))
-console.log(words.slice(18).join(' '))
-console.log('\nWrite it down on a piece of paper and keep it in a safe place.\n')
-console.log(chalk.bold('WARNING') + ': Anybody who sees this phrase can steal your coins.')
+function saveMnemonic (mnemonic) {
+  const entropy = bip39.mnemonicToEntropy(mnemonic)
+  fs.writeFileSync(entropyPath, entropy)
+}
+
+try {
+  entropy = fs.readFileSync(entropyPath, 'utf8').trim()
+
+  console.log('Your master seed is: \n')
+  const mnemonic = bip39.entropyToMnemonic(entropy)
+  const words = mnemonic.split(' ')
+  console.log(words.slice(0, 6).join(' '))
+  console.log(words.slice(6, 12).join(' '))
+  console.log(words.slice(12, 18).join(' '))
+  console.log(words.slice(18).join(' '))
+  console.log('\nWrite it down on a piece of paper and keep it in a safe place.\n')
+  console.log(chalk.bold('WARNING') + ': Anybody who sees this phrase can steal your coins.')
+} catch (err) {
+  newMnemonic()
+  .then(() => console.log('Successfully restored mnemonic.'))
+  .then(() => process.exit(0))
+}

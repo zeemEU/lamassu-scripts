@@ -1,18 +1,16 @@
 #!/usr/bin/env node
-'use strict';
+'use strict'
 
-var LamassuConfig = require('lamassu-config');
+var LamassuConfig = require('lamassu-config')
 var psqlUrl = require('../lib/db')
 
-var config = new LamassuConfig(psqlUrl);
+var config = new LamassuConfig(psqlUrl)
 
 config.readExchangesConfig(function (err, _config) {
-  if (err) throw err;
-  _config.exchanges.plugins.current.transfer = 'bitcoind';
-  _config.exchanges.plugins.settings.bitcoind = {bitcoindConfigurationPath: '/root/.bitcoin/bitcoin.conf'};
+  if (err) throw err
+  _config.exchanges.plugins.settings.bitcoind = {bitcoindConfigurationPath: '/root/.bitcoin/bitcoin.conf'}
   config.saveExchangesConfig(_config, function (err) {
-    if (err) throw err;
-    config.end();
-    console.log('lamassu-server is now using bitcoind.');
-  });
-});
+    if (err) throw err
+    config.end()
+  })
+})

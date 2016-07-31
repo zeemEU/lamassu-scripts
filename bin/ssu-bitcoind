@@ -35,4 +35,6 @@ BIN=$(npm bin)
 BACKUP_CRON="@daily $BIN/backup-bitcoind > /dev/null"
 echo $BACKUP_CRON | crontab -
 
+$BIN/lamassu-bitcoind-enable
+
 echo "Success."

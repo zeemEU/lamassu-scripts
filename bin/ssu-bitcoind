@@ -31,7 +31,7 @@ EOF
 pm2 start bitcoind >> $LOG_FILE 2>&1
 pm2 save >> $LOG_FILE 2>&1
 
-BIN=$(npm bin)
+BIN=$(npm -g bin)
 BACKUP_CRON="@daily $BIN/backup-bitcoind > /dev/null"
 echo $BACKUP_CRON | crontab -
 

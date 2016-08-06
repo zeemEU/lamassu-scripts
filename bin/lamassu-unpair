@@ -6,10 +6,10 @@ var LamassuConfig = require('lamassu-config')
 
 var config = new LamassuConfig(psqlUrl)
 
-var fingerprint = process.argv[2]
+var deviceId = process.argv[2]
 
-if (!fingerprint) {
-  console.error('Device fingerprint is required: lamassu-unpair <fingerprint>')
+if (!deviceId) {
+  console.error('Device id is required: lamassu-unpair <device id>')
   console.log()
   config.devices(function (err, devices) {
     if (err) throw err
@@ -25,16 +25,16 @@ if (!fingerprint) {
       var device = devices[i]
       var name = device.name
       if (name) {
-        console.log('name: %s, fingerprint: %s', name, device.fingerprint)
+        console.log('name: %s, deviceId: %s', name, device.device_id)
         break
       }
-      console.log(device.fingerprint)
+      console.log(device.device_id)
     }
     process.exit(3)
   })
 }
 
-if (fingerprint === '-a') {
+if (deviceId === '-a') {
   config.unpairAll(function (err, count) {
     if (err) {
       console.error('Error: ' + err.message)
@@ -52,7 +52,7 @@ if (fingerprint === '-a') {
   })
 }
 
-config.unpair(fingerprint, function (err, unpaired) {
+config.unpair(deviceId, function (err, unpaired) {
   if (err) {
     console.error('Error: ' + err.message)
     process.exit(1)

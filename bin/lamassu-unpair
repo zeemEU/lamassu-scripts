@@ -1,65 +1,68 @@
 #!/usr/bin/env node
-'use strict';
+'use strict'
 
 var psqlUrl = require('../lib/db')
-var LamassuConfig = require('lamassu-config');
+var LamassuConfig = require('lamassu-config')
 
-var config = new LamassuConfig(psqlUrl);
+var config = new LamassuConfig(psqlUrl)
 
-var fingerprint = process.argv[2];
+var fingerprint = process.argv[2]
 
 if (!fingerprint) {
-  console.error('Device fingerprint is required: lamassu-unpair <fingerprint>');
-  console.log();
+  console.error('Device fingerprint is required: lamassu-unpair <fingerprint>')
+  console.log()
   config.devices(function (err, devices) {
-    if (err) throw err;
+    if (err) throw err
 
-    var count = devices.length;
-    if (count === 0)
-      console.log('You have no paired devices');
-    else
-      console.log('Currently paired devices:');
+    var count = devices.length
+    if (count === 0) {
+      console.log('You have no paired devices')
+    } else {
+      console.log('Currently paired devices:')
+    }
 
     for (var i = 0; i < count; i++) {
-      var device = devices[i];
-      var name = device.name;
-      if (name)
-        console.log('name: %s, fingerprint: %s', name, device.fingerprint);
-      else
-        console.log(device.fingerprint);
+      var device = devices[i]
+      var name = device.name
+      if (name) {
+        console.log('name: %s, fingerprint: %s', name, device.fingerprint)
+        break
+      }
+      console.log(device.fingerprint)
     }
-    process.exit(3);
-  });
+    process.exit(3)
+  })
 }
 
 if (fingerprint === '-a') {
   config.unpairAll(function (err, count) {
     if (err) {
-      console.error('Error: ' + err.message);
-      process.exit(1);
+      console.error('Error: ' + err.message)
+      process.exit(1)
     }
-    if (count === 0)
-      console.log('You have no paired devices');
-    else if (count === 1)
-      console.log('Successfully unpaired your device');
-    else
-      console.log('Unpaired all %d devices', count);
-    config.end();
-    process.exit(0);
-  });
+    if (count === 0) {
+      console.log('You have no paired devices')
+    } else if (count === 1) {
+      console.log('Successfully unpaired your device')
+    } else {
+      console.log('Unpaired all %d devices', count)
+    }
+    config.end()
+    process.exit(0)
+  })
 }
 
 config.unpair(fingerprint, function (err, unpaired) {
   if (err) {
-    console.error('Error: ' + err.message);
-    process.exit(1);
+    console.error('Error: ' + err.message)
+    process.exit(1)
   }
 
   if (!unpaired) {
-    console.error('Device not found');
-    process.exit(2);
+    console.error('Device not found')
+    process.exit(2)
   }
 
-  console.log('Device unpaired');
-  config.end();
-});
+  console.log('Device unpaired')
+  config.end()
+})

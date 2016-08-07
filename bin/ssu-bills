@@ -8,7 +8,7 @@ var _ = require('lodash')
 var conString = require('../lib/db')
 
 var db = require('pg-promise')({})(conString)
-var name, top, bottom, fingerprint
+var name, top, bottom, deviceId
 
 var noArgs = argv.length === 0
 
@@ -45,11 +45,11 @@ var badArgs = !validateArgs()
 if (badArgs) usage()
 
 if (noArgs) {
-  db.manyOrNone('SELECT name, fingerprint FROM devices')
+  db.manyOrNone('SELECT name, device_id FROM devices')
   .then(function (rows) {
     if (rows.length === 0) bail('No machines are paired yet.')
-    var sql = 'SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC limit 1'
-    var promises = rows.map(function (row) { return db.one(sql, [row.fingerprint]) })
+    var sql = 'SELECT count1, count2 FROM dispenses WHERE device_id=$1 ORDER BY id DESC limit 1'
+    var promises = rows.map(function (row) { return db.one(sql, [row.device_id]) })
 
     console.log('Current counts:')
 
@@ -67,15 +67,15 @@ if (noArgs) {
     process.exit(3)
   })
 } else {
-  db.manyOrNone('SELECT name, fingerprint FROM devices')
+  db.manyOrNone('SELECT name, device_id FROM devices')
   .then(function (rows) {
     if (rows.length === 0) bail('No machines are paired yet.')
     if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.')
     if (!name) name = rows[0].name
     var chosen = _.find(rows, {name: name})
     if (!chosen) bail('No such machine: ' + name)
-    fingerprint = chosen.fingerprint
-    return db.one('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC limit 1', [fingerprint])
+    deviceId = chosen.device_id
+    return db.one('SELECT count1, count2 FROM dispenses WHERE device_id=$1 ORDER BY id DESC limit 1', [deviceId])
   })
   .then(function (row) {
     console.log('\nPrevious count:')
@@ -83,9 +83,9 @@ if (noArgs) {
     if (badArgs) process.exit(5)
 
     var insertSql = 'insert into dispenses ' +
-      '(device_fingerprint, count1, count2, refill, dispense1, reject1, dispense2, reject2) ' +
+      '(device_id, count1, count2, refill, dispense1, reject1, dispense2, reject2) ' +
       'values ($1, $2, $3, $4, $5, $6, $7, $8)'
-    var insertValues = [fingerprint, top, bottom, true, 0, 0, 0, 0]
+    var insertValues = [deviceId, top, bottom, true, 0, 0, 0, 0]
 
     return db.none(insertSql, insertValues)
   })

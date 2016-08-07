@@ -12,11 +12,11 @@ var newRows = []
 
 function updateName (row, cb) {
   var name = row.name || moniker.choose()
-  var fingerprint = row.fingerprint
-  newRows.push({name: name, fingerprint: fingerprint})
+  var deviceId = row.device_id
+  newRows.push({name: name, deviceId: deviceId})
   if (row.name) return cb()
-  client.query('UPDATE devices SET name=$1 WHERE fingerprint=$2',
-    [name, fingerprint], function (err) {
+  client.query('UPDATE devices SET name=$1 WHERE device_id=$2',
+    [name, deviceId], function (err) {
       cb(err)
     })
 }
@@ -42,9 +42,9 @@ client.connect(function (err) {
 
       for (var i = 0; i < newRows.length; i++) {
         var row = newRows[i]
-        var fp = row.fingerprint
+        var id = row.device_id
         var name = row.name
-        console.log('%s %s', pad(name, 24), fp)
+        console.log('%s %s', pad(name, 24), id)
       }
     })
   })

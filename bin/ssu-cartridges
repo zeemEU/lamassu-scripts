@@ -12,7 +12,7 @@ var db = require('pg-promise')({})(conString)
 var off = argv.length === 1 && argv[0].toLowerCase() === 'off'
 
 var name = null
-var fingerprint
+var deviceId
 var oldCounts
 
 function usage () {
@@ -66,22 +66,22 @@ if (badArgs) usage()
 
 var currency
 
-db.manyOrNone('SELECT name, fingerprint FROM devices')
+db.manyOrNone('SELECT name, device_id FROM devices')
 .then(function (rows) {
   if (rows.length === 0) bail('No machines are paired yet.')
   if (!name && rows.length !== 1) bail('You have multiple machines, please supply a machine name.')
   if (!name) name = rows[0].name
   var chosen = _.find(rows, {name: name})
   if (!chosen) bail('No such machine: ' + name)
-  fingerprint = chosen.fingerprint
-  return db.oneOrNone('SELECT count1, count2 FROM dispenses WHERE device_fingerprint=$1 ORDER BY id DESC limit 1', [fingerprint])
+  deviceId = chosen.device_id
+  return db.oneOrNone('SELECT count1, count2 FROM dispenses WHERE device_id=$1 ORDER BY id DESC limit 1', [deviceId])
 })
 .then(function (res) {
   oldCounts = res ? [res.count1, res.count2] : [0, 0]
   var insertSql = 'insert into dispenses ' +
-    '(device_fingerprint, count1, count2, refill, dispense1, reject1, dispense2, reject2) ' +
+    '(device_id, count1, count2, refill, dispense1, reject1, dispense2, reject2) ' +
     'values ($1, $2, $3, $4, $5, $6, $7, $8)'
-  var insertValues = [fingerprint, 0, 0, true, 0, 0, 0, 0]
+  var insertValues = [deviceId, 0, 0, true, 0, 0, 0, 0]
   return db.none(insertSql, insertValues)
 })
 .then(function () {

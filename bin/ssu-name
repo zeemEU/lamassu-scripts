@@ -42,7 +42,7 @@ client.connect(function (err) {
 
       for (var i = 0; i < newRows.length; i++) {
         var row = newRows[i]
-        var id = row.device_id
+        var id = row.deviceId
         var name = row.name
         console.log('%s %s', pad(name, 24), id)
       }

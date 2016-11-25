@@ -26,6 +26,7 @@ rpcpassword=$PASS
 keypool=10000
 prune=4000
 daemon=0
+printtoconsole=1
 EOF
 
 pm2 start bitcoind >> $LOG_FILE 2>&1

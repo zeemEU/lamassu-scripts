@@ -1,6 +1,6 @@
 {
   "name": "lamassu-scripts",
-  "version": "0.2.34",
+  "version": "0.2.35",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
     "lamassu-passwd": "./bin/lamassu-passwd",
@@ -35,9 +35,8 @@
     "lamassu-tx-export": "./bin/lamassu-tx-export",
     "lamassu-bills-unencrypted": "./bin/lamassu-bills-unencrypted",
     "ssu-commission": "./bin/ssu-commission",
-    "lamassu-tx-export": "./bin/lamassu-tx-export",
     "ssu-tx-cashin": "./bin/ssu-tx-cashin",
-    "ssu-tx-cashout": "./bin/ssu-tx-cashout"    
+    "ssu-tx-cashout": "./bin/ssu-tx-cashout"
   },
   "dependencies": {
     "async": "^0.9.0",

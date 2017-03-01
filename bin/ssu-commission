@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+'use strict';
+
+var LamassuConfig = require('lamassu-config');
+var promptly = require('promptly');
+
+var config = new LamassuConfig();
+
+console.log('\nSetting your commission rates.\n');
+console.log('A commission rate of 5.9% should be entered as 1.059.\n');
+console.log('If configuring a one-way machine, leave \'Cash-out commission\' as default.\n');
+promptly.prompt('Cash-in commission: ', function(commissionErr, commission) {
+  promptly.prompt('Cash-out commission (optional, default mirrors cash-in commission): ' , {default: commission}, function(fiatCommissionErr, fiatCommission) {
+    updateDb(commission, fiatCommission, function(err) {
+      if (err) throw err;
+      console.log('\nSuccess.');
+    });
+  });
+});
+
+function updateDb(commission, fiatCommission, callback) {
+  var newConfig = {
+    exchanges: {
+      settings: {
+          commission: parseFloat(commission),
+          fiatCommission: parseFloat(fiatCommission)
+      }
+    }
+  };
+  config.mergeConfig(newConfig, callback);
+}

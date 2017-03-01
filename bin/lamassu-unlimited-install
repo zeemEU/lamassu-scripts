@@ -13,13 +13,13 @@ if [ ! $# -eq 1 ]; then
   echo "Please enter your email address."
   echo "Bitcoin wallet backups will automatically be sent there."
   echo
-  echo "lamassu-classic-install <email_address>"
+  echo "lamassu-unlimited-install <email_address>"
   echo
   exit 1
 elif [[ ! $EMAIL_ADDRESS =~ .+@.+\..+ ]]; then
   echo "Please enter a valid email address."
   echo
-  echo "lamassu-classic-install <email_address>"
+  echo "lamassu-unlimited-install <email_address>"
   exit 2
 fi
 
@@ -31,12 +31,12 @@ if ! gpg --list-public-keys --with-colons $EMAIL_ADDRESS &>/dev/null; then
   echo
   echo "You will be presented with a list of your PGP keys,"
   echo "you should choose the one you want to use."
-  echo "When you are done, run lamassu-classic-install again."
+  echo "When you are done, run lamassu-unlimited-install again."
   echo
   exit 3
 fi
 
-echo "Updating your system for Bitcoin Classic. Might take a few minutes."
+echo "Updating your system for Bitcoin Unlimited. Might take a few minutes."
 {
 apt-get update -y
 apt-get upgrade -y
@@ -54,7 +54,7 @@ dd if=/dev/zero of=/swapfile bs=1M count=1024 &>/dev/null
 mkswap /swapfile
 swapon /swapfile
 echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
-add-apt-repository -y ppa:bitcoinclassic/bitcoinclassic &>/dev/null
+add-apt-repository -y ppa:bitcoin-unlimited/bu-ppa &>/dev/null
 apt-get update -y
 mkdir ~/.bitcoin/
 apt-get install bitcoind -y
@@ -106,12 +106,12 @@ crontab -
 /usr/local/bin/lamassu-bitcoind-backup $EMAIL_ADDRESS
 
 echo
-echo "Installation was successful! Bitcoin Classic is now running."
+echo "Installation was successful! Bitcoin Unlimited is now running."
 echo
-echo "It will take about 24 hours for Bitcoin Classic to load the entire blockchain."
+echo "It will take about 24 hours for Bitcoin Unlimited to load the entire blockchain."
 echo
 echo "Please check your email for your first wallet backup."
 echo
 echo "When your blockchain has caught up, run lamassu-bitcoind-enable to start"
-echo "using Bitcoin Classic as your remote server wallet."
+echo "using Bitcoin Unlimited as your remote server wallet."
 echo

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+su - postgres -c "psql \"lamassu\" -Atc \"COPY transactions to '/tmp/transactions.csv' WITH CSV HEADER\""
+
+echo "Saved to /tmp/transactions.csv"

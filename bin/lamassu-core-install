@@ -78,6 +78,7 @@ echo "rpcuser=$randUser" >> $config
 echo "rpcpassword=$randPass" >> $config
 echo "keypool=1000" >> $config
 echo "prune=4000" >> $config
+echo "nospendzeroconfchange=0" >> $config
 
 cat > "/etc/init/bitcoind.conf" <<EOF
 description "bitcoind"

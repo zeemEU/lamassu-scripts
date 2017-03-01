@@ -1,6 +1,6 @@
 {
   "name": "lamassu-scripts",
-  "version": "0.2.33",
+  "version": "0.2.34",
   "author": "Lamassu (https://lamassu.is)",
   "bin": {
     "lamassu-passwd": "./bin/lamassu-passwd",
@@ -29,7 +29,15 @@
     "backup-bitcoind": "./bin/backup-bitcoind",
     "ssu-bitcoind": "./bin/ssu-bitcoind",
     "ssu-geth": "./bin/ssu-geth",
-    "ssu-mnemonic": "./bin/ssu-mnemonic"
+    "ssu-mnemonic": "./bin/ssu-mnemonic",
+    "lamassu-unlimited-install": "./bin/lamassu-unlimited-install",
+    "lamassu-bills-export": "./bin/lamassu-bills-export",
+    "lamassu-tx-export": "./bin/lamassu-tx-export",
+    "lamassu-bills-unencrypted": "./bin/lamassu-bills-unencrypted",
+    "ssu-commission": "./bin/ssu-commission",
+    "lamassu-tx-export": "./bin/lamassu-tx-export",
+    "ssu-tx-cashin": "./bin/ssu-tx-cashin",
+    "ssu-tx-cashout": "./bin/ssu-tx-cashout"    
   },
   "dependencies": {
     "async": "^0.9.0",
@@ -44,7 +52,8 @@
     "pad": "0.0.5",
     "pg": "^4.5.5",
     "pg-promise": "^4.3.7",
-    "read": "^1.0.5"
+    "read": "^1.0.5",
+    "promptly": "~0.2.0"
   },
   "description": "lamassu-scripts",
   "main": "bin/lamassu-bootstrap",

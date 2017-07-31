@@ -100,10 +100,10 @@ echo "Waiting for bitcoind to load."
 until bitcoin-cli getblockcount &>/dev/null; do sleep 1; done
 
 # Set up wallet backup cron job
-echo -e "MAILTO=$EMAIL_ADDRESS\n00 05 * * * /usr/local/bin/lamassu-bitcoind-backup \"$EMAIL_ADDRESS\"" | \
+echo -e "MAILTO=$EMAIL_ADDRESS\n00 05 * * * /usr/bin/lamassu-bitcoind-backup \"$EMAIL_ADDRESS\"" | \
 crontab -
 
-/usr/local/bin/lamassu-bitcoind-backup $EMAIL_ADDRESS
+/usr/bin/lamassu-bitcoind-backup $EMAIL_ADDRESS
 
 echo
 echo "Installation was successful! Bitcoin Unlimited is now running."
